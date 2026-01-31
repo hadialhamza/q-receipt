@@ -1,95 +1,185 @@
 "use client";
 
 import { useState } from "react";
-import { FileUp, Loader2, FileText, CheckCircle2 } from "lucide-react";
+import { FileUp, Loader2, FileText, X, Eye, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { extractTextFromPdf } from "@/lib/pdf-extractor";
+import { extractTextFromPdf, renderPdfToImage } from "@/lib/pdf-extractor";
 import { parseReceiptData } from "@/lib/parse-receipt";
+import { parseReceiptWithAI } from "@/app/actions/ai/groq-parser";
+import { verifyExtraction } from "@/lib/verification";
+import { Button } from "@/components/ui/button";
+import { GlassMagnifier } from "@/components/ui/GlassMagnifier"; // আমাদের কাস্টম কম্পোনেন্ট
 
 export function PdfUpload({ onDataExtracted }) {
-    const [loading, setLoading] = useState(false);
-    const [fileName, setFileName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
-    const handleFileUpload = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-        // Validate file type
-        if (file.type !== "application/pdf") {
-            toast.error("Please upload a PDF file");
-            return;
+    if (file.type !== "application/pdf") {
+      toast.error("Please upload a PDF file");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      toast.info("Processing Receipt...");
+
+      // ১. প্যারালাল প্রসেসিং: টেক্সট এবং ইমেজ একসাথে জেনারেট হবে
+      const [text, imageUrl] = await Promise.all([
+        extractTextFromPdf(file), // টেক্সট বের করা
+        renderPdfToImage(file), // ইমেজ বানানো (Zoom এর জন্য)
+      ]);
+
+      // প্রিভিউ সেট করা
+      if (imageUrl) {
+        setPreviewImage(imageUrl);
+      }
+
+      console.log("=== EXTRACTED TEXT ===", text);
+
+      // ২. AI Parsing শুরু
+      try {
+        toast.loading("AI Analyzing...");
+        const aiResult = await parseReceiptWithAI(text);
+
+        if (aiResult.success) {
+          const verificationStatus = verifyExtraction(text, aiResult.data);
+          onDataExtracted(aiResult.data, verificationStatus);
+
+          toast.dismiss();
+          toast.success("Success! Data Verified. 🤖");
+          setLoading(false);
+          return;
         }
+      } catch (aiError) {
+        console.warn("AI Parsing failed:", aiError);
+        toast.dismiss();
+        toast.warning("AI busy, switching to offline mode... ⚡");
+      }
 
-        setLoading(true);
-        setFileName(file.name);
+      // ৩. Fallback Regex Parsing
+      const manualData = parseReceiptData(text);
+      if (Object.keys(manualData).length > 0) {
+        onDataExtracted(manualData, {});
+        toast.success("Data extracted using offline mode! ⚡");
+      } else {
+        toast.error("Could not read receipt data automatically.");
+      }
+    } catch (error) {
+      console.error("Extraction error:", error);
+      toast.error("Failed to process PDF.");
+      setPreviewImage(null);
+    } finally {
+      setLoading(false);
+      e.target.value = "";
+    }
+  };
 
-        try {
-            toast.info("Extracting text from PDF...");
+  const clearFile = () => {
+    setPreviewImage(null);
+    onDataExtracted({}, {});
+  };
 
-            // Extract text using pdfjs-dist
-            const text = await extractTextFromPdf(file);
-
-            console.log("=== EXTRACTED TEXT ===");
-            console.log(text);
-            console.log("===================");
-
-            // Parse extracted text using parse-receipt utility
-            const extractedData = parseReceiptData(text);
-
-            if (Object.keys(extractedData).length > 0) {
-                onDataExtracted(extractedData);
-                toast.success("Text extracted successfully!");
-            } else {
-                toast.warning("Could not extract receipt data. Please fill manually.");
-            }
-        } catch (error) {
-            console.error("PDF extraction error:", error);
-            toast.error(error.message || "Failed to process PDF. Please try again.");
-        } finally {
-            setLoading(false);
-            e.target.value = "";
-        }
-    };
-
-    return (
-        <div className="rounded-lg border bg-card p-6 text-center sticky top-6">
-            <div className="bg-primary/10 size-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                {loading ? (
-                    <Loader2 className="animate-spin text-primary" size={32} />
-                ) : (
-                    <FileText className="text-primary" size={32} />
-                )}
+  return (
+    <div
+      className={`rounded-lg border bg-card ${previewImage ? "p-0 overflow-hidden" : "p-6"} sticky top-6 transition-all duration-300`}
+    >
+      {/* --- STATE 1: PREVIEW MODE (With Glass Magnifier) --- */}
+      {previewImage ? (
+        <div className="flex flex-col h-[85vh]">
+          {/* Header */}
+          <div className="p-3 border-b bg-muted/30 flex items-center justify-between z-10">
+            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+              <Eye size={16} />
+              Hover to Zoom
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFile}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+              title="Close Preview"
+            >
+              <X size={18} />
+            </Button>
+          </div>
 
-            <h3 className="text-lg font-bold mb-2">PDF Auto-Fill</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-                Upload a digital PDF receipt. Text will be extracted automatically.
-            </p>
+          {/* 🔍 MAGNIFIER AREA */}
+          <div className="flex-1 bg-gray-100 overflow-auto flex items-center justify-center p-4">
+            <div className="shadow-lg w-full max-w-full bg-white">
+              <GlassMagnifier
+                imageSrc={previewImage}
+                magnifierSize={200}
+                zoomLevel={2.5}
+              />
+            </div>
+          </div>
 
+          {/* Footer Actions */}
+          <div className="p-3 border-t bg-background z-10">
             <label className="cursor-pointer block">
-                <input
-                    type="file"
-                    accept="application/pdf"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                    disabled={loading}
-                />
-                <span className="block w-full bg-background border hover:border-primary text-foreground font-medium py-3 rounded-lg transition-all shadow-sm hover:shadow-md disabled:opacity-50">
-                    <FileUp className="inline-block mr-2 mb-1" size={18} />
-                    {loading ? "Extracting..." : "Upload PDF"}
-                </span>
+              <input
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={handleFileUpload}
+                disabled={loading}
+              />
+              <div className="text-xs text-center text-muted-foreground hover:text-primary underline cursor-pointer">
+                {loading ? "Analyzing new file..." : "Upload different PDF"}
+              </div>
             </label>
-
-            {fileName && !loading && (
-                <p className="text-xs text-green-600 dark:text-green-400 mt-3 flex items-center justify-center gap-1">
-                    <CheckCircle2 size={14} />
-                    {fileName}
-                </p>
-            )}
-
-            <p className="text-xs text-muted-foreground mt-4">
-                Direct text extraction from digital PDFs
-            </p>
+          </div>
         </div>
-    );
+      ) : (
+        /* --- STATE 2: UPLOAD MODE (Default) --- */
+        <div className="text-center">
+          <div className="bg-primary/10 size-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            {loading ? (
+              <Loader2 className="animate-spin text-primary" size={32} />
+            ) : (
+              <FileText className="text-primary" size={32} />
+            )}
+          </div>
+
+          <h3 className="text-lg font-bold mb-2">PDF Auto-Fill</h3>
+          <p className="text-sm text-muted-foreground mb-6">
+            Upload a receipt to extract data and enable <b>Magic Zoom</b>{" "}
+            preview.
+          </p>
+
+          <label className="cursor-pointer block">
+            <input
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={handleFileUpload}
+              disabled={loading}
+            />
+            <span className="block w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3 rounded-lg transition-all shadow-sm hover:shadow-md disabled:opacity-50 flex items-center justify-center gap-2">
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <FileUp size={18} />
+                  Upload PDF
+                </>
+              )}
+            </span>
+          </label>
+
+          <p className="text-xs text-muted-foreground mt-4">
+            Powered by AI & OCR
+          </p>
+        </div>
+      )}
+    </div>
+  );
 }
