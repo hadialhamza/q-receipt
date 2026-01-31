@@ -1,7 +1,8 @@
 "use server";
 
 import { z } from "zod";
-import { insertOne, COLLECTIONS } from "@/lib/db/helpers";
+import { insertOne, COLLECTIONS, ensureShortCodeIndex } from "@/lib/db/helpers";
+import { generateUniqueShortCode } from "./generate-short-code";
 
 // Receipt validation schema
 const receiptSchema = z.object({
@@ -28,16 +29,23 @@ const receiptSchema = z.object({
  */
 export async function createReceipt(data) {
   try {
+    // Ensure short code index exists
+    await ensureShortCodeIndex();
+
     // Validate data
     const validatedData = receiptSchema.parse(data);
 
     // Generate unique receipt number
     const receiptNo = await generateReceiptNumber();
 
+    // Generate unique short code for public URL
+    const shortCode = await generateUniqueShortCode();
+
     // Prepare receipt document
     const receipt = {
       ...validatedData,
       receiptNo,
+      shortCode,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -49,6 +57,7 @@ export async function createReceipt(data) {
       success: true,
       data: {
         receiptNo,
+        shortCode,
         id: result._id.toString(),
       },
     };

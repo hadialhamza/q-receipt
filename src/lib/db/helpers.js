@@ -79,3 +79,40 @@ export async function count(collectionName, query = {}) {
   const db = await getDB();
   return db.collection(collectionName).countDocuments(query);
 }
+
+/**
+ * Delete multiple documents
+ * @param {string} collectionName
+ * @param {object} query
+ * @returns {Promise<object>}
+ */
+export async function deleteMany(collectionName, query) {
+  const db = await getDB();
+  return db.collection(collectionName).deleteMany(query);
+}
+
+/**
+ * Find receipt by short code
+ * @param {string} shortCode
+ * @returns {Promise<object|null>}
+ */
+export async function findReceiptByShortCode(shortCode) {
+  return findOne(COLLECTIONS.RECEIPTS, { shortCode });
+}
+
+/**
+ * Ensure unique index on shortCode field
+ * @returns {Promise<void>}
+ */
+export async function ensureShortCodeIndex() {
+  const db = await getDB();
+  try {
+    await db.collection(COLLECTIONS.RECEIPTS).createIndex(
+      { shortCode: 1 },
+      { unique: true, sparse: true }
+    );
+  } catch (error) {
+    // Index may already exist, ignore error
+    console.log("Short code index already exists or created");
+  }
+}
