@@ -8,6 +8,9 @@ export const COLLECTIONS = {
   RECEIPTS: "receipts",
 };
 
+// Re-export getDB for convenience
+export { getDB };
+
 /**
  * Find one document
  * @param {string} collectionName

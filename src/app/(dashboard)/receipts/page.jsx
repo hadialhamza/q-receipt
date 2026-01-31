@@ -1,14 +1,24 @@
-export default function ReceiptsPage() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-3xl font-bold">Receipts</h1>
-        <p className="text-muted-foreground">Manage your receipts</p>
-      </div>
+import { getReceipts } from "@/app/actions/receipts/get-receipts";
+import ReceiptsTable from "./_components/ReceiptsTable";
 
-      <div className="rounded-lg border bg-card p-8 text-center">
-        <p className="text-muted-foreground">No receipts yet</p>
-      </div>
-    </div>
+export const metadata = {
+  title: "All Receipts | Invoice Corrector",
+  description: "Manage and track all insurance receipts",
+};
+
+export default async function ReceiptsPage(props) {
+  const searchParams = await props.searchParams;
+
+  const search = searchParams?.search || "";
+  const page = parseInt(searchParams?.page || "1", 10);
+
+  const result = await getReceipts({ search, page, limit: 50 });
+
+  return (
+    <ReceiptsTable
+      initialReceipts={result.data || []}
+      initialTotal={result.total || 0}
+      initialPage={page}
+    />
   );
 }
