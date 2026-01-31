@@ -13,8 +13,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const receiptSchema = z.object({
+  companyType: z.enum(["GLOBAL", "FEDERAL"], {
+    required_error: "Please select a company",
+  }),
   issuingOffice: z.string().min(1, "Issuing office is required"),
   receiptNo: z.string().min(1, "Receipt number is required"),
   classOfInsurance: z.string().min(1, "Class of insurance is required"),
@@ -44,6 +54,7 @@ export default function ReceiptForm() {
   } = useForm({
     resolver: zodResolver(receiptSchema),
     defaultValues: {
+      companyType: "GLOBAL",
       issuingOffice: "Rangpur Branch",
       receiptNo: "",
       classOfInsurance: "",
@@ -122,9 +133,41 @@ export default function ReceiptForm() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2 space-y-6">
         <div className="rounded-lg border bg-card p-6">
-          <h2 className="text-lg font-semibold mb-6">Receipt Details</h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Row 1 */}
+            {/* Company Selector Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b pb-4">
+              <h2 className="text-lg font-semibold">Receipt Details</h2>
+
+              {/* COMPANY SELECTION DROPDOWN */}
+              <div className="w-full md:w-1/2">
+                <Label
+                  htmlFor="companyType"
+                  className="mb-1.5 block text-xs font-bold uppercase text-muted-foreground"
+                >
+                  Select Company Template
+                </Label>
+                <Select
+                  value={watch("companyType")}
+                  onValueChange={(value) => setValue("companyType", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a company" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" className="z-[100]">
+                    <SelectItem value="GLOBAL">Global Insurance Ltd.</SelectItem>
+                    <SelectItem value="FEDERAL">
+                      Federal Insurance Company Ltd.
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.companyType && (
+                  <p className="text-destructive text-xs mt-1">
+                    {errors.companyType.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="relative">
                 <Label htmlFor="issuingOffice">Issuing Office</Label>

@@ -62,6 +62,11 @@ Return ONLY valid JSON.`;
       );
     }
 
+    // Add default companyType if not present
+    if (!parsedData.companyType) {
+      parsedData.companyType = "GLOBAL";
+    }
+
     return { success: true, data: parsedData };
   } catch (error) {
     console.error("Groq Error:", error);

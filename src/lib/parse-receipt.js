@@ -14,6 +14,7 @@ export function parseReceiptData(text) {
   const cleanText = text.replace(/\s+/g, " ").trim();
 
   const data = {
+    companyType: "GLOBAL", // Default company type
     issuingOffice: "",
     receiptNo: "",
     classOfInsurance: "",

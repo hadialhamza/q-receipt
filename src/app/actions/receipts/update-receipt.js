@@ -7,6 +7,7 @@ import { z } from "zod";
 
 // Same validation schema as create
 const receiptSchema = z.object({
+  companyType: z.enum(["GLOBAL", "FEDERAL"]),
   issuingOffice: z.string().min(1),
   receiptNo: z.string().min(1),
   classOfInsurance: z.string().min(1),
@@ -51,7 +52,7 @@ export async function updateReceipt(id, data) {
           ...validatedData,
           updatedAt: new Date(),
         },
-      }
+      },
     );
 
     // Get updated document
