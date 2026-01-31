@@ -4,28 +4,27 @@ import { useState } from "react";
 
 export function GlassMagnifier({
   imageSrc,
-  magnifierSize = 200, // গ্লাসের সাইজ (কত বড় গোল হবে)
-  zoomLevel = 2.5, // জুম লেভেল (কত গুণ বড় দেখাবে)
+  magnifierSize = 200,
+  zoomLevel = 2.5,
 }) {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showMagnifier, setShowMagnifier] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [magnifierPos, setMagnifierPos] = useState({ x: 0, y: 0 });
+  const [imgDimensions, setImgDimensions] = useState({ width: 0, height: 0 });
 
   const handleMouseMove = (e) => {
-    const { left, top, width, height } =
-      e.currentTarget.getBoundingClientRect();
+    const elem = e.currentTarget;
+    const { left, top, width, height } = elem.getBoundingClientRect();
 
-    // মাউসের পজিশন ক্যালকুলেশন (রিলেটিভ টু ইমেজ)
+    // Calculate mouse position relative to image
     const x = e.clientX - left;
     const y = e.clientY - top;
 
-    setCursorPosition({ x, y });
+    // Store image dimensions for background positioning
+    if (imgDimensions.width === 0) {
+      setImgDimensions({ width, height });
+    }
 
-    // জুম করার জন্য ব্যাকগ্রাউন্ড পজিশন ক্যালকুলেশন
-    const xPerc = (x / width) * 100;
-    const yPerc = (y / height) * 100;
-
-    setPosition({ x: xPerc, y: yPerc });
+    setMagnifierPos({ x, y });
     setShowMagnifier(true);
   };
 
@@ -33,35 +32,38 @@ export function GlassMagnifier({
     <div
       className="relative overflow-hidden cursor-none w-full h-full"
       onMouseMove={handleMouseMove}
+      onMouseEnter={() => setShowMagnifier(true)}
       onMouseLeave={() => setShowMagnifier(false)}
     >
-      {/* মেইন ইমেজ */}
+      {/* Main Image */}
       <img
         src={imageSrc}
-        alt="Preview"
-        className="w-full h-auto object-contain pointer-events-none"
+        alt="Receipt Preview"
+        className="w-full h-auto object-contain pointer-events-none select-none"
+        draggable={false}
       />
 
-      {/* ম্যাগনিফাইং গ্লাস (শুধু হোভার করলেই আসবে) */}
+      {/* Magnifying Glass */}
       {showMagnifier && (
         <div
           style={{
             position: "absolute",
-            left: `${cursorPosition.x - magnifierSize / 2}px`,
-            top: `${cursorPosition.y - magnifierSize / 2}px`,
+            left: `${magnifierPos.x - magnifierSize / 2}px`,
+            top: `${magnifierPos.y - magnifierSize / 2}px`,
             width: `${magnifierSize}px`,
             height: `${magnifierSize}px`,
-            border: "4px solid rgba(255, 255, 255, 0.8)",
+            border: "4px solid rgba(255, 255, 255, 0.9)",
             borderRadius: "50%",
             backgroundColor: "white",
             backgroundImage: `url('${imageSrc}')`,
             backgroundRepeat: "no-repeat",
-            // ম্যাজিক এখানে: ইমেজের সাইজ বাড়িয়ে পজিশন ঠিক করা হচ্ছে
-            backgroundSize: `${zoomLevel * 100}%`,
-            backgroundPosition: `${position.x}% ${position.y}%`,
-            pointerEvents: "none", // যাতে মাউস ইভেন্ট ব্লক না করে
-            boxShadow: "0 10px 25px rgba(0,0,0,0.5)", // সুন্দর শ্যাডো
+            // Critical fix: Calculate background position to center the zoomed area
+            backgroundSize: `${imgDimensions.width * zoomLevel}px ${imgDimensions.height * zoomLevel}px`,
+            backgroundPosition: `${-magnifierPos.x * zoomLevel + magnifierSize / 2}px ${-magnifierPos.y * zoomLevel + magnifierSize / 2}px`,
+            pointerEvents: "none",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.3)",
             zIndex: 50,
+            transition: "border-color 0.1s ease",
           }}
         />
       )}
