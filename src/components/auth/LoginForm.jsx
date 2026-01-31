@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { loginUser } from "@/app/actions/login";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +21,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -32,9 +36,24 @@ export default function LoginForm() {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    console.log("Form data:", data);
-    // TODO: Implement authentication logic
-    setTimeout(() => setIsLoading(false), 2000);
+
+    try {
+      const result = await loginUser(data);
+
+      if (result.success) {
+        toast.success(result.message);
+        // Redirect to dashboard after short delay
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1000);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
