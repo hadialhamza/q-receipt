@@ -1,10 +1,15 @@
 import Logo from "@/components/Logo";
 import BrandingPanel from "@/components/auth/BrandingPanel";
 import LoginForm from "@/components/auth/LoginForm";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen w-full flex">
+    <div className="min-h-screen w-full flex relative">
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Left Side - Branding & Info (Client Component) */}
       <BrandingPanel />
 
