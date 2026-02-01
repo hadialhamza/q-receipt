@@ -40,7 +40,7 @@ export default async function RootLayout({ children }) {
         <AuthProvider>
           <ThemeProvider initialTheme={theme}>
             {children}
-            <Toaster position="top" richColors closeButton />
+            <Toaster position="top-center" richColors closeButton />
           </ThemeProvider>
         </AuthProvider>
       </body>
