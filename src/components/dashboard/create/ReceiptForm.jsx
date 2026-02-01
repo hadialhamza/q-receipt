@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 
 const receiptSchema = z.object({
-  companyType: z.enum(["GLOBAL", "FEDERAL"], {
+  companyType: z.enum(["GLOBAL", "FEDERAL", "TAKAFUL"], {
     required_error: "Please select a company",
   }),
   issuingOffice: z.string().min(1, "Issuing office is required"),
@@ -154,9 +154,14 @@ export default function ReceiptForm() {
                     <SelectValue placeholder="Select a company" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="z-[100]">
-                    <SelectItem value="GLOBAL">Global Insurance Ltd.</SelectItem>
+                    <SelectItem value="GLOBAL">
+                      Global Insurance Ltd.
+                    </SelectItem>
                     <SelectItem value="FEDERAL">
                       Federal Insurance Company Ltd.
+                    </SelectItem>
+                    <SelectItem value="TAKAFUL">
+                      Takaful Islami Insurance Ltd.
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -337,7 +342,7 @@ export default function ReceiptForm() {
               </div>
             </div>
 
-            {/* Financials */}
+            {/* Financial */}
             <div className="pt-4 border-t">
               <h3 className="text-sm font-semibold mb-4">Financial Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

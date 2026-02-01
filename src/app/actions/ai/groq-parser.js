@@ -11,36 +11,36 @@ export async function parseReceiptWithAI(text) {
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     const prompt = `You are a strict data extraction engine. Extract data EXACTLY as it appears in the text.
+    
+      CRITICAL RULES:
+      1. **NO INFERENCE:** Do not guess data. If a field is blank in the text, return null.
+      2. **NO TRANSFER:** Do NOT move data from one field to another.
+      3. **DRAWN ON RULE:** Only extract "Drawn on" if it is explicitly written next to the label. If blank, return null.
+      4. **CLEAN CLIENT NAME:** In "receivedFrom", capture the full name/address block but EXCLUDE system labels like "MUSHAK", "BIN", "MONEY RECEIPT", or "Date".
 
-CRITICAL RULES:
-1. **NO INFERENCE:** Do not guess data. If a field is blank in the text, return null.
-2. **NO TRANSFER:** Do NOT move data from one field to another.
-3. **DRAWN ON RULE:** Only extract "Drawn on" if it is explicitly written next to the label. If blank, return null.
-4. **CLEAN CLIENT NAME:** In "receivedFrom", capture the full name/address block but EXCLUDE system labels like "MUSHAK", "BIN", "MONEY RECEIPT", or "Date".
+      Required Data:
+      - issuingOffice (Text associated with "Issuing Office")
+      - receiptNo (Text associated with "Money Receipt No" or "Receipt No")
+      - classOfInsurance (Fire/Marine/Motor/Miscellaneous)
+      - date (Main receipt date, YYYY-MM-DD)
+      - receivedFrom (Full text block under "Received with thanks from")
 
-Required Data:
-- issuingOffice (Text associated with "Issuing Office")
-- receiptNo (Text associated with "Money Receipt No" or "Receipt No")
-- classOfInsurance (Fire/Marine/Motor/Miscellaneous)
-- date (Main receipt date, YYYY-MM-DD)
-- receivedFrom (Full text block under "Received with thanks from")
+      - sumOf (COMBINED STRING: Extract the numeric amount followed by the amount in words exactly as shown in the PDF. 
+        Example format: "1,02,695.00 (One Lakh Two Thousand Six Hundred Ninety Five taka)". 
+        Do NOT return them separately. Keep the parentheses.)
 
-- sumOf (COMBINED STRING: Extract the numeric amount followed by the amount in words exactly as shown in the PDF. 
-  Example format: "1,02,695.00 (One Lakh Two Thousand Six Hundred Ninety Five taka)". 
-  Do NOT return them separately. Keep the parentheses.)
+      - modeOfPayment (Cheque/Cash details)
+      - drawnOn (Bank name IF present next to "Drawn on" label)
+      - issuedAgainst (Policy number/Code)
+      - chequeDate (Look specifically for the label "Dated" at the bottom of the receipt. Convert to YYYY-MM-DD.)
+      - premium (Numeric value)
+      - vat (Numeric value)
+      - total (Numeric value)
 
-- modeOfPayment (Cheque/Cash details)
-- drawnOn (Bank name IF present next to "Drawn on" label)
-- issuedAgainst (Policy number/Code)
-- chequeDate (Look specifically for the label "Dated" at the bottom of the receipt. Convert to YYYY-MM-DD.)
-- premium (Numeric value)
-- vat (Numeric value)
-- total (Numeric value)
+      Receipt Text:
+      ${text}
 
-Receipt Text:
-${text}
-
-Return ONLY valid JSON.`;
+      Return ONLY valid JSON.`;
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
@@ -62,9 +62,19 @@ Return ONLY valid JSON.`;
       );
     }
 
-    // Add default companyType if not present
+    // Improved company detection logic
     if (!parsedData.companyType) {
-      parsedData.companyType = "GLOBAL";
+      const lowerText = text.toLowerCase();
+      if (
+        lowerText.includes("takaful") ||
+        lowerText.includes("islami insurance")
+      ) {
+        parsedData.companyType = "TAKAFUL";
+      } else if (lowerText.includes("federal insurance")) {
+        parsedData.companyType = "FEDERAL";
+      } else {
+        parsedData.companyType = "GLOBAL";
+      }
     }
 
     return { success: true, data: parsedData };

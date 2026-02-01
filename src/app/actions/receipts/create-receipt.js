@@ -6,7 +6,7 @@ import { generateUniqueShortCode } from "./generate-short-code";
 
 // Receipt validation schema
 const receiptSchema = z.object({
-  companyType: z.enum(["GLOBAL", "FEDERAL"]),
+  companyType: z.enum(["GLOBAL", "FEDERAL", "TAKAFUL"]),
   issuingOffice: z.string().min(1),
   receiptNo: z.string().min(1),
   classOfInsurance: z.string().min(1),
