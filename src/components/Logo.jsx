@@ -35,17 +35,15 @@ export default function Logo({
 
   const logoBody = (
     <div
-      className={`inline-flex items-center ${currentSize.container} ${currentVariant.container} group`}
+      className={`inline-flex items-center ${currentSize.container} ${currentVariant.container} group cursor-pointer select-none font-logo`}
     >
       <div
         className={`${currentSize.icon} ${currentVariant.icon} ${currentVariant.iconRing} rounded-xl flex items-center justify-center ring-4 shadow-lg group-hover:scale-105 transition-transform duration-300`}
       >
         <QrCode className="size-[60%]" strokeWidth={2.5} />
       </div>
-      <div className="flex flex-col">
-        <span
-          className={`${currentSize.text} font-bold leading-tight tracking-tight`}
-        >
+      <div className="flex flex-col font-outfit">
+        <span className={`${currentSize.text} font-bold leading-tight`}>
           QReceipt
         </span>
         <span

@@ -7,17 +7,19 @@ import AuthProvider from "@/components/auth/AuthProvider";
 
 const montserratAlternates = Montserrat_Alternates({
   weight: ["400", "500", "600", "700"],
-  variable: "--font-heading",
+  variable: "--font-montserrat",
   subsets: ["latin"],
 });
 
 const dmSans = DM_Sans({
-  variable: "--font-body",
+  weight: ["400", "500", "700"],
+  variable: "--font-dm-sans",
   subsets: ["latin"],
 });
 
 const outfit = Outfit({
-  variable: "--font-logo",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -38,7 +40,7 @@ export default async function RootLayout({ children }) {
         <AuthProvider>
           <ThemeProvider initialTheme={theme}>
             {children}
-            <Toaster position="top-right" richColors closeButton />
+            <Toaster position="top" richColors closeButton />
           </ThemeProvider>
         </AuthProvider>
       </body>
