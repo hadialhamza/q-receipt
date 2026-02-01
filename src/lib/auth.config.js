@@ -4,10 +4,16 @@ import { findOne, COLLECTIONS } from "@/lib/db/helpers";
 export const authConfig = {
   providers: [],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        token.name = user.name;
+        token.image = user.image;
+      }
+      if (trigger === "update" && session?.user) {
+        token.name = session.user.name;
+        token.image = session.user.image;
       }
       return token;
     },
@@ -15,6 +21,8 @@ export const authConfig = {
       if (token) {
         session.user.id = token.id;
         session.user.email = token.email;
+        session.user.name = token.name;
+        session.user.image = token.image;
       }
       return session;
     },
@@ -28,9 +36,7 @@ export const authConfig = {
   },
 };
 
-/**
- * Verify user credentials against database
- */
+// Verify user credentials
 export async function verifyCredentials(email, password) {
   try {
     if (!email || !password) {
@@ -57,6 +63,8 @@ export async function verifyCredentials(email, password) {
     return {
       id: user._id.toString(),
       email: user.email,
+      name: user.name,
+      image: user.image,
     };
   } catch (error) {
     console.error("Credential verification error:", error);
