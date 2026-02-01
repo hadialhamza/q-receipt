@@ -35,7 +35,7 @@ export default function DownloadPDFButton({ shortCode, data }) {
       // Add Federal Insurance Header Image
       try {
         // Load header image
-        const headerImg = await fetch("/federal/header.png");
+        const headerImg = await fetch("/federal/header.webp");
         const headerBlob = await headerImg.blob();
         const headerDataUrl = await new Promise((resolve) => {
           const reader = new FileReader();

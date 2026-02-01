@@ -10,7 +10,7 @@ export default function FederalTemplate({ data, code }) {
         {/* Header Image */}
         <div className="text-center pt-3.5">
           <Image
-            src="/federal/header.png"
+            src="/federal/header.webp"
             alt="Federal Insurance PLC"
             width={800}
             height={100}
