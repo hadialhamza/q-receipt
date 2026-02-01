@@ -13,101 +13,56 @@ export default function LoginPage() {
       </div>
 
       {/* Main Container */}
-      <div className="relative w-full max-w-7xl">
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-gray-900/10 dark:shadow-black/40 overflow-hidden border border-gray-200/50 dark:border-gray-800/50">
-          <div className="flex flex-col lg:flex-row-reverse">
-            {/* Right Side - Login Form */}
-            <div className="w-full lg:w-[45%] p-8 sm:p-12 lg:p-16 xl:p-20 flex items-center justify-center bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
-              <LoginForm />
+      <div className="relative w-full max-w-6xl h-[80vh]">
+        <div className="h-[95%] bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-[2rem] shadow-lg shadow-gray-900/10 dark:shadow-black/40 overflow-hidden border border-gray-200/50 dark:border-gray-800/50 relative p-5 lg:p-15">
+          {/* Background Panel */}
+          <div className="absolute inset-0 z-0 bg-linear-to-br from-blue-600 via-blue-700 to-indigo-800 dark:from-blue-700 dark:via-blue-800 dark:to-indigo-900">
+            {/* Grid Pattern */}
+            <svg
+              className="absolute inset-0 w-full h-full opacity-20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <pattern
+                  id="grid"
+                  width="40"
+                  height="40"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 40 0 L 0 0 0 40"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="1"
+                  />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+          </div>
+
+          <div className="relative z-20 h-full w-full flex items-center justify-center gap-10">
+            {/* Left Side Content*/}
+            <div className="hidden lg:flex max-w-md flex-1 flex-col gap-7">
+              <Logo size="lg" variant="inverted" clickable={false} />
+              <h1 className="font-outfit text-white text-5xl font-bold leading-tight tracking-tighter">
+                Elevate Your <br />
+                <span className="bg-linear-to-r from-blue-200 to-indigo-200 bg-clip-text text-transparent">
+                  Business Workflow
+                </span>
+              </h1>
+              <p className="text-lg text-blue-50/80 leading-relaxed font-dm-sans">
+                Join thousands of companies using QReceipt to manage their
+                financial documents with smart QR integration.
+              </p>
             </div>
 
-            {/* Left Side - Welcome Panel */}
-            <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden bg-linear-to-br from-blue-600 via-blue-700 to-indigo-800 dark:from-blue-700 dark:via-blue-800 dark:to-indigo-900">
-              {/* Decorative Pattern Overlay */}
-              <div className="absolute inset-0">
-                {/* Animated Gradient Orbs */}
-                <div
-                  className="absolute top-0 left-0 size-96 bg-blue-400/30 dark:bg-blue-500/20 rounded-full blur-3xl animate-pulse"
-                  style={{ animationDuration: "4s" }}
-                />
-                <div
-                  className="absolute bottom-0 right-0 size-96 bg-indigo-500/30 dark:bg-indigo-600/20 rounded-full blur-3xl animate-pulse"
-                  style={{ animationDuration: "6s", animationDelay: "1s" }}
-                />
-
-                {/* Grid Pattern */}
-                <svg
-                  className="absolute inset-0 w-full h-full opacity-10"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <defs>
-                    <pattern
-                      id="grid"
-                      width="40"
-                      height="40"
-                      patternUnits="userSpaceOnUse"
-                    >
-                      <path
-                        d="M 40 0 L 0 0 0 40"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="0.5"
-                      />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#grid)" />
-                </svg>
-              </div>
-
-              {/* Content */}
-              <div className="relative z-10 flex flex-col justify-center text-white p-12 xl:p-14">
-                <div className="space-y-6 max-w-lg">
-                  {/* Logo */}
-                  <div>
-                    <Logo size="lg" variant="inverted" clickable={false} />
-                  </div>
-
-                  <div className="space-y-3">
-                    <h1 className="font-heading text-4xl xl:text-5xl font-bold leading-tight">
-                      Streamline Your
-                      <br />
-                      <span className="bg-gradient-to-r from-blue-200 to-indigo-200 bg-clip-text text-transparent">
-                        Receipt Management
-                      </span>
-                    </h1>
-                    <p className="text-base text-blue-50/90 leading-relaxed">
-                      Generate, manage, and share QR-enabled receipts with ease.
-                      Perfect for businesses of all sizes.
-                    </p>
-                  </div>
-
-                  {/* Features */}
-                  <div className="space-y-2.5 pt-1">
-                    {[
-                      { icon: "⚡", text: "Instant QR code generation" },
-                      { icon: "🔒", text: "Secure cloud storage" },
-                      { icon: "📊", text: "Easy sharing & tracking" },
-                      { icon: "✨", text: "Professional templates" },
-                    ].map((feature, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 group hover:translate-x-1 transition-transform duration-300"
-                      >
-                        <div className="size-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center text-base group-hover:scale-110 transition-transform">
-                          {feature.icon}
-                        </div>
-                        <span className="text-blue-50/90 text-sm font-medium">
-                          {feature.text}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+            {/* Login form */}
+            <div className="flex-1 max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-800/50 transform transition-transform hover:scale-[1.01]">
+              <LoginForm />
             </div>
           </div>
         </div>
-
         {/* Bottom Text */}
         <p className="text-center mt-8 text-sm text-gray-600 dark:text-gray-400">
           © 2026 QReceipt. All rights reserved.

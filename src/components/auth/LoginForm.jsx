@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import Logo from "../Logo";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -49,10 +50,13 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full p-6 sm:p-8 lg:p-10">
+      <div className="lg:hidden mb-4 lg:mb-8 flex justify-center">
+        <Logo size="md" variant="default" clickable={false} />
+      </div>
       {/* Header */}
-      <div className="mb-10">
-        <h1 className="font-heading text-4xl font-bold text-gray-900 dark:text-white mb-3">
+      <div className="mb-3 lg:mb-10">
+        <h1 className="font-heading text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-1 md:mb-3">
           Welcome Back
         </h1>
         <p className="text-gray-600 dark:text-gray-400 text-lg">
@@ -61,7 +65,7 @@ export default function LoginForm() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 lg:space-y-5">
         {/* Email Field */}
         <div className="space-y-2">
           <label
@@ -78,7 +82,7 @@ export default function LoginForm() {
               id="email"
               type="email"
               placeholder="you@example.com"
-              className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-transform duration-200"
               {...register("email", {
                 required: "Email is required",
                 pattern: {
@@ -112,7 +116,7 @@ export default function LoginForm() {
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
-              className="w-full pl-12 pr-12 py-3.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full pl-12 pr-12 py-3.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-transform duration-200"
               {...register("password", {
                 required: "Password is required",
                 minLength: {
@@ -149,7 +153,7 @@ export default function LoginForm() {
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="peer size-5 rounded-md border-2 border-gray-300 dark:border-gray-600 checked:bg-blue-600 checked:border-blue-600 dark:checked:bg-blue-500 dark:checked:border-blue-500 focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all cursor-pointer appearance-none"
+                className="peer size-5 rounded-md border-2 border-gray-300 dark:border-gray-600 checked:bg-blue-600 checked:border-blue-600 dark:checked:bg-blue-500 dark:checked:border-blue-500 focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-transform cursor-pointer appearance-none"
               />
               <svg
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity"
@@ -165,7 +169,7 @@ export default function LoginForm() {
                 />
               </svg>
             </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">
               Remember me
             </span>
           </label>
@@ -175,7 +179,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 dark:hover:shadow-blue-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2.5 group"
+          className="w-full mt-6 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 dark:hover:shadow-blue-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2.5 group"
         >
           {isLoading ? (
             <>
@@ -202,25 +206,6 @@ export default function LoginForm() {
           )}
         </button>
       </form>
-
-      {/* Divider */}
-      <div className="relative my-8">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300 dark:border-gray-700" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-            New to QReceipt?
-          </span>
-        </div>
-      </div>
-
-      {/* Sign Up Link */}
-      <div className="text-center">
-        <button className="text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-          Create an account →
-        </button>
-      </div>
     </div>
   );
 }
