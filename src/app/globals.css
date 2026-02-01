@@ -132,6 +132,21 @@
     font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   }
 
+  /* Control Default Autofill Colors */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--foreground);
+    -webkit-box-shadow: 0 0 0px 1000px var(--background) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* For dark mode specifically if needed to match custom backgrounds */
+  .dark input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px oklch(0.25 0.02 250) inset !important;
+    /* Matches gray-800 roughly */
+  }
+
   h1,
   h2,
   h3,
