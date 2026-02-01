@@ -10,17 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { toast } from "sonner";
 
-export function UserMenu() {
-  const router = useRouter();
 
-  const handleLogout = () => {
+export function UserMenu() {
+  const handleLogout = async () => {
+    await signOut({ redirect: true, callbackUrl: "/" });
     toast.success("Logged out successfully");
-    setTimeout(() => {
-      router.push("/");
-    }, 500);
   };
 
   return (

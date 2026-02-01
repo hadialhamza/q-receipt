@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { loginUser } from "@/app/actions/login";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,16 +38,20 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      const result = await loginUser(data);
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
 
-      if (result.success) {
-        toast.success(result.message);
+      if (result?.error) {
+        toast.error("Invalid email or password");
+      } else if (result?.ok) {
+        toast.success("Login successful!");
         // Redirect to dashboard after short delay
         setTimeout(() => {
           router.push("/dashboard");
         }, 1000);
-      } else {
-        toast.error(result.message);
       }
     } catch (error) {
       toast.error("An unexpected error occurred. Please try again.");

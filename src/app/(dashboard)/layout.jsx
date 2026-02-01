@@ -1,7 +1,16 @@
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Sidebar } from "@/components/dashboard/Sidebar";
+import { getServerSession } from "next-auth";
+import { authConfig } from "@/lib/auth.config";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout({ children }) {
+export default async function DashboardLayout({ children }) {
+  const session = await getServerSession(authConfig);
+
+  if (!session) {
+    redirect("/");
+  }
+
   return (
     <div className="h-screen flex flex-col">
       <TopBar />
