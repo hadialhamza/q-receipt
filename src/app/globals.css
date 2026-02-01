@@ -131,3 +131,88 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Dashboard Gradients - Blue → Indigo → Purple */
+@layer utilities {
+  /* Primary Gradient - Blue to Indigo */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #6366f1 100%);
+  }
+
+  .bg-gradient-primary-soft {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(99, 102, 241, 0.1) 100%);
+  }
+
+  /* Secondary Gradient - Blue to Purple */
+  .bg-gradient-secondary {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #8b5cf6 100%);
+  }
+
+  .bg-gradient-secondary-soft {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(124, 58, 237, 0.1) 50%, rgba(139, 92, 246, 0.1) 100%);
+  }
+
+  /* Accent Gradient - Indigo to Purple */
+  .bg-gradient-accent {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  }
+
+  /* Chart Gradient - Blue to Cyan */
+  .bg-gradient-chart {
+    background: linear-gradient(135deg, #2563eb 0%, #0891b2 50%, #06b6d4 100%);
+  }
+
+  /* Text Gradients */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-secondary {
+    @apply bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent;
+  }
+
+  /* Hover Gradients */
+  .hover-gradient-primary {
+    @apply hover:bg-gradient-to-r hover:from-blue-600 hover:via-indigo-600 hover:to-indigo-700 transition-all duration-300;
+  }
+
+  /* Border Gradients */
+  .border-gradient-primary {
+    border-image: linear-gradient(135deg, #2563eb, #4f46e5, #6366f1) 1;
+  }
+
+  /* Dark Mode Gradients */
+  .dark .bg-gradient-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+  }
+
+  .dark .bg-gradient-secondary {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  }
+
+  /* Card Shadows with Color */
+  .shadow-primary {
+    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.15);
+  }
+
+  .shadow-primary-lg {
+    box-shadow: 0 10px 25px -3px rgba(37, 99, 235, 0.2), 0 4px 6px -2px rgba(37, 99, 235, 0.1);
+  }
+
+  .dark .shadow-primary {
+    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.25);
+  }
+
+  .dark .shadow-primary-lg {
+    box-shadow: 0 10px 25px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.15);
+  }
+
+  /* Glassmorphism */
+  .glass {
+    @apply bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/50 dark:border-gray-800/50;
+  }
+
+  .glass-card {
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-800/50;
+  }
+}
