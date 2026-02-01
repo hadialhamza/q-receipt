@@ -28,7 +28,7 @@ Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`
         </div>
 
         {/* BIN and Download */}
-        <div className="flex justify-between mt-5 px-3 text-black">
+        <div className="flex justify-between mt-10.5 text-black">
           <div className="inline-block">
             <label htmlFor="BIN">BIN : 000251825-0203</label>
           </div>
@@ -38,23 +38,23 @@ Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`
         </div>
 
         {/* Content Wrapper */}
-        <div className="pr-3 text-black">
+        <div className="text-black">
           {/* Title */}
-          <div className="mt-1 text-center">
+          <div className="mt-[3.5px] text-center mb-3.5 pr-3.5">
             <label>MONEY RECEIPT</label>
             <p className="text-[11px] text-black">MUSHAK : 6.3</p>
           </div>
 
           {/* Receipt Details */}
-          <div className="py-4">
+          <div className="py-5.25 pr-3.5">
             <div className="grid grid-cols-2">
               {/* Left Column */}
               <div>
                 <div className="flex m-0">
                   <div className="basis-5/12">Issuing Office</div>
                   <div className="basis-7/12">
-                    <div className="float-left pr-1.25">:</div>
-                    <div className="float-left">
+                    <div className="float-left pl-1">:</div>
+                    <div className="float-left pl-1.25">
                       {data.issuingOffice || "N/A"}
                     </div>
                   </div>
@@ -62,8 +62,10 @@ Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`
                 <div className="flex">
                   <div className="basis-5/12">Money Receipt No.</div>
                   <div className="basis-7/12">
-                    <div className="float-left pr-1.25">:</div>
-                    <div className="float-left">{data.receiptNo || "N/A"}</div>
+                    <div className="float-left pl-1">:</div>
+                    <div className="float-left pl-1.25">
+                      {data.receiptNo || "N/A"}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -75,8 +77,8 @@ Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`
                 <div className="flex m-0">
                   <div className="basis-5/12">Class of Insurance</div>
                   <div className="basis-7/12">
-                    <div className="float-left pl-0.75 pr-1.25">:</div>
-                    <div className="float-left">
+                    <div className="float-left pl-1">:</div>
+                    <div className="float-left pl-1.25">
                       {data.classOfInsurance || "N/A"}
                     </div>
                   </div>
@@ -91,74 +93,74 @@ Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`
           </div>
 
           {/* Received with thanks from */}
-          <div className="flex items-end my-2">
-            <div className="basis-1/3">
-              <span className="font-medium">Received with thanks from</span>
+          <div className="flex items-end justify-between my-1.75 pr-1">
+            <div className="basis-[30%]">
+              <span className="font-bold">Received with thanks from</span>
             </div>
-            <div className="basis-2/3 border-b border-[#333] pl-0">
+            <div className="basis-[67.5%] border-b border-[#333] pr-[10.5px]">
               <span>{data.receivedFrom || ""}</span>
             </div>
           </div>
 
           {/* The sum of */}
-          <div className="flex items-end mb-2">
-            <div className="basis-1/6">
+          <div className="flex items-end justify-between mb-1.75 pr-1">
+            <div className="basis-[15%]">
               <span>The sum of</span>
             </div>
-            <div className="basis-5/6 border-b border-[#333]">
+            <div className="basis-[84.5%] border-b border-[#333]">
               {data.sumOf || ""}
             </div>
           </div>
 
           {/* Mode of Payment + Dated */}
-          <div className="flex items-end mb-2">
-            <div className="basis-1/4">
+          <div className="flex items-end mb-1.75 pr-1">
+            <div className="basis-[24%]">
               <span>Mode of Payment</span>
             </div>
-            <div className="basis-1/3 border-b border-[#333]">
+            <div className="basis-[33.8%] border-b border-[#333]">
               {data.modeOfPayment || ""}
             </div>
-            <div className="basis-1/6 text-right">
+            <div className="basis-[17%] text-right pr-[10.5px]">
               <span>Dated</span>
             </div>
-            <div className="basis-1/4 border-b border-[#333]">
+            <div className="basis-[25.2%] border-b border-[#333]">
               {data.chequeDate || ""}
             </div>
           </div>
 
           {/* Drawn on */}
-          <div className="flex items-end mb-2">
-            <div className="basis-1/6">
+          <div className="flex items-end justify-between mb-1.75 pr-1">
+            <div className="basis-[15%]">
               <span>Drawn on</span>
             </div>
-            <div className="basis-5/6 border-b border-[#333]">
+            <div className="basis-[84.5%] border-b border-[#333]">
               {data.drawnOn || ""}
             </div>
           </div>
 
           {/* Issued against */}
-          <div className="flex items-end mb-2">
-            <div className="basis-1/6">
+          <div className="flex items-end justify-between mb-1.75 pr-1">
+            <div className="basis-[15%]">
               <span>Issued against</span>
             </div>
-            <div className="basis-5/6 border-b border-[#333]">
+            <div className="basis-[84.5%] border-b border-[#333]">
               {data.issuedAgainst || ""}
             </div>
           </div>
 
           {/* Payment Table */}
           <div className="flex">
-            <div className="basis-1/2 mt-4">
+            <div className="basis-1/2 mt-5.25 pr-4.25">
               <table className="w-full text-black">
                 <tbody>
                   <tr className="border border-[#333]">
-                    <td className="p-[3px_9px] border border-[#333] w-[40%] pl-2">
+                    <td className="p-[3px_9px] border border-[#333] w-[40%] pl-1.75">
                       Premium
                     </td>
                     <td className="p-[3px_9px] border border-[#333] w-[15%] text-center">
                       BDT
                     </td>
-                    <td className="p-[3px_9px] border border-[#333] text-right pr-2">
+                    <td className="p-[3px_9px] border border-[#333] text-right pr-1.75">
                       {parseFloat(data.premium || 0).toLocaleString("en-US", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -166,13 +168,13 @@ Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`
                     </td>
                   </tr>
                   <tr className="border border-[#333]">
-                    <td className="p-[3px_9px] border border-[#333] pl-2">
+                    <td className="p-[3px_9px] border border-[#333] pl-1.75">
                       Vat
                     </td>
                     <td className="p-[3px_9px] border border-[#333] text-center">
                       BDT
                     </td>
-                    <td className="p-[3px_9px] border border-[#333] text-right pr-2">
+                    <td className="p-[3px_9px] border border-[#333] text-right pr-1.75">
                       {parseFloat(data.vat || 0).toLocaleString("en-US", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -180,13 +182,13 @@ Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`
                     </td>
                   </tr>
                   <tr className="bg-[lightgray] border border-[#333]">
-                    <td className="p-[3px_9px] border border-[#333] pl-2">
+                    <td className="p-[3px_9px] border border-[#333] pl-1.75">
                       Total
                     </td>
                     <td className="p-[3px_9px] border border-[#333] text-center">
                       BDT
                     </td>
-                    <td className="p-[3px_9px] border border-[#333] text-right pr-2">
+                    <td className="p-[3px_9px] border border-[#333] text-right pr-1.75">
                       {parseFloat(data.total || 0).toLocaleString("en-US", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -199,15 +201,15 @@ Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`
           </div>
 
           {/* Computer generated notice */}
-          <div className="mt-4">
-            <div className="text-center font-medium text-[#808080] text-sm">
+          <div className="mt-5.25 pr-3.5">
+            <div className="text-center font-medium text-[#808080] text-[13px]">
               This RECEIPT is computer generated, authorized signature is not
               required.
             </div>
           </div>
 
           {/* Gray background notice */}
-          <div className="-ml-px -mr-3.25">
+          <div className="">
             <div className="text-center bg-[lightgray] p-1.25 text-black">
               Receipt valid subject to encashment of cheque/P.O./D.D.
             </div>
