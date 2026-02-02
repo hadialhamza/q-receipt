@@ -40,8 +40,14 @@ export default function ReceiptTemplate({ data, code }) {
     <div className="max-w-200 mx-auto text-black relative">
       {/* Promotion Modal */}
       {showPromo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-          <div className="relative bg-transparent -mt-20">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={() => setShowPromo(false)}
+        >
+          <div
+            className="relative bg-transparent -mt-20"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowPromo(false)}
               className="absolute -top-8.5 -right-0.5 z-10 py-1.75 px-3 flex items-center justify-center rounded-[3px] bg-white font-bold text-black shadow-md hover:bg-gray-100"
@@ -53,7 +59,7 @@ export default function ReceiptTemplate({ data, code }) {
               alt="Download App"
               width={600}
               height={600}
-              className="w-full max-w-112.5 h-auto rounded-lg"
+              className="w-full max-w-112.5 h-auto rounded-lg hover:opacity-75 hover:brightness-90 transition-all duration-300 cursor-pointer"
               priority
             />
           </div>
