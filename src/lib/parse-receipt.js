@@ -11,11 +11,26 @@ function formatDateForInput(dateStr) {
 }
 
 export function parseReceiptData(text) {
-  const cleanText = text.replace(/\s+/g, " ").trim();
+  // Normalize colons: Ensure "Field:Value" has spacing "Field : Value" for easier parsing
+  const cleanText = text.replace(/:\s*/g, " : ");
+
+  const extract = (pattern) => {
+    const match = cleanText.match(pattern);
+    return match ? match[1].trim() : "";
+  };
+
+  // Company Detection Logic
+  let companyType = "GLOBAL";
+  const lowerText = text.toLowerCase();
+  if (lowerText.includes("takaful") || lowerText.includes("www.takaful.com.bd")) {
+    companyType = "TAKAFUL";
+  } else if (lowerText.includes("federal") || lowerText.includes("www.federalinsubd.com")) {
+    companyType = "FEDERAL";
+  }
 
   const data = {
-    companyType: "GLOBAL", // Default company type
-    issuingOffice: "",
+    companyType, // Dynamic company type
+    issuingOffice: "Rangpur Branch", // Default static as requested
     receiptNo: "",
     classOfInsurance: "",
     date: "",
@@ -28,76 +43,65 @@ export function parseReceiptData(text) {
     premium: "",
     vat: "",
     total: "",
+    bin: "",
+    stamp: "",
   };
 
   try {
-    // 1. Receipt No (Generic Pattern: Matches "RNP-..." or just numbers)
-    const receiptNoMatch = cleanText.match(
-      /(?:Money Receipt No|Receipt No)[\s.:]*([A-Z0-9-]+)/i,
-    );
-    if (receiptNoMatch) data.receiptNo = receiptNoMatch[1];
+    // 1. Basic Fields (Key : Value)
+    data.bin = extract(/BIN\s*:\s*([\d-]+)/i);
+    data.receiptNo = extract(/(?:Money Receipt No|Receipt No)\s*:\s*([A-Z0-9-]+)/i);
+    data.classOfInsurance = extract(/Class of Insurance\s*:\s*([^\n\r]+?)(?=\s+Date|Date\s*:|$)/i);
 
-    // 2. Issuing Office (Heuristic: Text before Receipt No)
-    if (data.receiptNo) {
-      let textBefore = cleanText.split(data.receiptNo)[0];
-      // Remove headers
-      textBefore = textBefore
-        .replace(
-          /(Money Receipt No|Issuing Office|Date\s*:|MONEY RECEIPT)/gi,
-          "",
-        )
-        .trim();
-      const officeMatch = textBefore.match(
-        /([a-zA-Z\s]+Branch|[a-zA-Z\s]+Office)$/i,
-      );
-      if (officeMatch) data.issuingOffice = officeMatch[0].trim();
-    }
+    // 2. Dates (DD-MM-YYYY)
+    // Primary Date
+    const dateMatch = cleanText.match(/Date\s*:\s*(\d{2}-\d{2}-\d{4})/i);
+    if (dateMatch) data.date = dateMatch[1];
 
-    // 3. Class of Insurance
-    const classMatch = cleanText.match(/(Fire|Marine|Motor|Miscellaneous)/i);
-    if (classMatch) data.classOfInsurance = classMatch[1];
+    // Cheque Date
+    const chequeDateMatch = cleanText.match(/Dated\s*(\d{2}-\d{2}-\d{4})/i);
+    if (chequeDateMatch) data.chequeDate = chequeDateMatch[1];
 
-    // 4. Date
-    const dateMatch = cleanText.match(/(\d{2}-\d{2}-\d{4})/);
-    if (dateMatch) data.date = formatDateForInput(dateMatch[1]);
-
-    // 5. Received From (Generic Sandwich)
+    // 3. Received From (Multi-line sandwich)
+    // Captures text between "Received with thanks from" and the next known keyword
     const clientMatch = cleanText.match(
-      /Received with thanks from\s+(.*?)\s+(?:MUSHAK|Premium|The sum of)/i,
+      /Received with thanks from\s+([\s\S]+?)(?=\s+(?:The sum of|Mode of Payment|MUSHAK))/i
     );
-    if (clientMatch) data.receivedFrom = clientMatch[1].trim();
-
-    // 6. Sum of (Text in parentheses)
-    const sumWordsMatch =
-      cleanText.match(/\(([^)]*One Lakh[^)]*)\)/i) ||
-      cleanText.match(/\( (.*?) \)/i);
-    if (sumWordsMatch) {
-      let extractedSum = sumWordsMatch[1].trim();
-      if (!extractedSum.toLowerCase().endsWith("taka")) extractedSum += " taka";
-      data.sumOf = extractedSum;
+    if (clientMatch) {
+      data.receivedFrom = clientMatch[1].replace(/\n/g, " ").replace(/\s+/g, " ").trim();
     }
 
-    // 7. Mode of Payment
-    const modeMatch = cleanText.match(/(Cheque[;\s]*\d+|Cash)/i);
-    if (modeMatch) data.modeOfPayment = modeMatch[1];
+    // 4. Sum of (Text in parentheses)
+    const sumMatch = cleanText.match(/The sum of.*?\(([^)]+)\)/i);
+    if (sumMatch) {
+      let sumText = sumMatch[1].trim();
+      if (!sumText.toLowerCase().includes("taka")) sumText += " taka";
+      const amountMatch = cleanText.match(/The sum of.*?Tk\.\s*([\d,]+\.\d{2})/i);
+      if (amountMatch) {
+        data.sumOf = `${amountMatch[1]} (${sumText})`;
+      } else {
+        data.sumOf = sumText;
+      }
+    }
 
-    // 8. Drawn on (Strict regex for fallback too)
-    const bankMatch = cleanText.match(
-      /Drawn on\s+([a-zA-Z\s]+Bank[a-zA-Z\s]*)/i,
-    );
-    if (bankMatch) data.drawnOn = bankMatch[1].trim();
+    // 5. Mode of Payment
+    data.modeOfPayment = extract(/Mode of Payment\s+(.+?)(?=\s+Dated|\s+Drawn on|$)/i);
 
-    // 9. Financials
-    const premiumMatch = cleanText.match(
-      /Premium\s*(?:BDT)?\s*([\d,]+\.\d{2})/i,
-    );
-    if (premiumMatch) data.premium = premiumMatch[1].replace(/,/g, "");
+    // 6. Drawn on
+    data.drawnOn = extract(/Drawn on\s+(.+?)(?=\s+Issued against|$)/i);
 
-    const vatMatch = cleanText.match(/VAT\s*(?:BDT)?\s*([\d,]+\.\d{2})/i);
-    if (vatMatch) data.vat = vatMatch[1].replace(/,/g, "");
+    // 7. Issued Against
+    data.issuedAgainst = extract(/Issued against\s+([A-Z0-9\/-]+)/i);
 
-    const totalMatch = cleanText.match(/Total\s*(?:BDT)?\s*([\d,]+\.\d{2})/i);
-    if (totalMatch) data.total = totalMatch[1].replace(/,/g, "");
+    // 8. Financials
+    data.premium = extract(/Premium\s+BDT\s+([\d,]+\.\d{2})/i).replace(/,/g, "");
+    data.vat = extract(/VAT\s+BDT\s+([\d,]+\.\d{2})/i).replace(/,/g, "");
+    data.total = extract(/Total\s+BDT\s+([\d,]+\.\d{2})/i).replace(/,/g, "");
+
+    // Stamp (Optional)
+    const stampMatch = cleanText.match(/Stamp\s+BDT\s+([\d,]+\.\d{2})/i);
+    if (stampMatch) data.stamp = stampMatch[1].replace(/,/g, "");
+
   } catch (error) {
     console.error("Regex Parsing Error:", error);
   }

@@ -10,36 +10,34 @@ export async function parseReceiptWithAI(text) {
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-    const prompt = `You are a strict data extraction engine. Extract data EXACTLY as it appears in the text.
-    
+    const prompt = `You are a strict data extraction engine. The input text is already structured with key-value pairs (e.g., "Field : Value"). 
+      
+      YOUR JOB:
+      1. Map the text values to the JSON fields below.
+      2. Fix any minor OCR errors (e.g., "Banl" -> "Bank").
+      3. Format dates as DD-MM-YYYY.
+
       CRITICAL RULES:
       1. **NO INFERENCE:** Do not guess data. If a field is blank in the text, return null.
       2. **NO TRANSFER:** Do NOT move data from one field to another.
-      3. **DRAWN ON RULE:** Only extract "Drawn on" if it is explicitly written next to the label. If blank, return null.
-      4. **CLEAN CLIENT NAME:** In "receivedFrom", capture the full name/address block but EXCLUDE system labels like "MUSHAK", "BIN", "MONEY RECEIPT", or "Date".
-      5. **FULL TEXT EXTRACTION:** For "classOfInsurance", extract the COMPLETE line text (e.g., "Marine Cargo" instead of just "Marine"). Do NOT truncate.
+      3. **FULL TEXT EXTRACTION:** For "classOfInsurance", extract the COMPLETE line text.
 
       Required Data:
-      - issuingOffice (Text associated with "Issuing Office")
-      - receiptNo (Text associated with "Money Receipt No" or "Receipt No")
-      - classOfInsurance (Full descriptive text, e.g. "Marine Cargo", "Fire & Allied Perils")
-      - date (Main receipt date. FORMAT: DD-MM-YYYY exactly as in source)
-      - receivedFrom (Full text block under "Received with thanks from")
-
-      - sumOf (COMBINED STRING: Extract the numeric amount followed by the amount in words exactly as shown in the PDF. 
-        Example format: "1,02,695.00 (One Lakh Two Thousand Six Hundred Ninety Five taka)". 
-        Do NOT return them separately. Keep the parentheses.)
-
-      - modeOfPayment (Cheque/Cash details)
-      - drawnOn (Bank name IF present next to "Drawn on" label)
-      - issuedAgainst (Policy number/Code)
-      - chequeDate (Look specifically for the label "Dated" at the bottom of the receipt. FORMAT: DD-MM-YYYY exactly as in source)
-      - premium (Numeric value)
-      - vat (Numeric value)
-      - total (Numeric value)
-      
-      - bin (Look for "BIN:" or "BIN" and extract the number following it, e.g. "000001297-0202")
-      - stamp (Look for "Stamp" value relative to financial amounts. If present, extract numeric value. If not found, return null)
+      - issuingOffice (Static: "Rangpur Branch" - or extract from "Issuing Office :")
+      - receiptNo (Extract from "Money Receipt No :")
+      - classOfInsurance (Extract from "Class of Insurance :")
+      - date (Extract from "Date :", Format: DD-MM-YYYY)
+      - receivedFrom (Extract from "Received with thanks from" block)
+      - sumOf (Extract from "The sum of". Keep the format "amount (words)")
+      - modeOfPayment (Extract from "Mode of Payment")
+      - drawnOn (Extract from "Drawn on")
+      - issuedAgainst (Extract from "Issued against")
+      - chequeDate (Extract from "Dated", Format: DD-MM-YYYY)
+      - premium (Extract from "Premium BDT")
+      - vat (Extract from "VAT BDT")
+      - total (Extract from "Total BDT")
+      - bin (Extract from "BIN :")
+      - stamp (Extract from "Stamp BDT" if present)
 
       Receipt Text:
       ${text}

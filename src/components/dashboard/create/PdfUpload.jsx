@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { extractTextFromPdf, renderPdfToImage } from "@/lib/pdf-extractor";
 import { parseReceiptData } from "@/lib/parse-receipt";
 import { parseReceiptWithAI } from "@/app/actions/ai/groq-parser";
-import { verifyExtraction } from "@/lib/verification";
+import { verifyExtraction, validateExtraction } from "@/lib/verification";
 import { Button } from "@/components/ui/button";
 import { GlassMagnifier } from "@/components/ui/GlassMagnifier";
 
@@ -28,44 +28,67 @@ export function PdfUpload({ onDataExtracted }) {
     try {
       toast.info("Processing Receipt...");
 
+      // 1. Extract Raw PDF Text
       const [text, imageUrl] = await Promise.all([
         extractTextFromPdf(file),
-        renderPdfToImage(file), 
+        renderPdfToImage(file),
       ]);
 
       if (imageUrl) {
         setPreviewImage(imageUrl);
       }
 
-      console.log(text);
-      // ২. AI Parsing
+      console.log("=== RAW TEXT ===", text);
+
+      // ----------------------------------------------------
+      // LEVEL 1: REGEX PARSING (Offline / Fast)
+      // ----------------------------------------------------
+      const regexData = parseReceiptData(text);
+
+      // ----------------------------------------------------
+      // LEVEL 2: VALIDATION GATE
+      // ----------------------------------------------------
+      const { isValid, missingFields } = validateExtraction(regexData);
+
+      if (isValid) {
+        // SUCCESS: Regex found everything
+        console.log("✅ Regex Extraction Successful!", regexData);
+        toast.success("Data extracted successfully! ⚡");
+
+        // Pass to form
+        const verificationStatus = verifyExtraction(text, regexData);
+        onDataExtracted(regexData, verificationStatus);
+
+        setLoading(false);
+        return; // EXIT EARLY (Skip AI)
+      }
+
+      // ----------------------------------------------------
+      // LEVEL 3: AI BACKUP (Only if Validation Fails)
+      // ----------------------------------------------------
+      console.warn("⚠️ Regex incomplete. Missing:", missingFields);
+      toast.warning(`Switching to AI... Missing: ${missingFields.join(", ")}`);
+
       try {
-        toast.loading("AI Analyzing...");
         const aiResult = await parseReceiptWithAI(text);
 
         if (aiResult.success) {
+          console.log("🤖 AI Extraction Result:", aiResult.data);
+          toast.success("AI Enhanced Extraction Complete 🤖");
+
           const verificationStatus = verifyExtraction(text, aiResult.data);
           onDataExtracted(aiResult.data, verificationStatus);
-
-          toast.dismiss();
-          toast.success("Success! Data Verified. 🤖");
-          setLoading(false);
-          return;
+        } else {
+          // AI Failed, force fallback data anyway
+          toast.error("AI failed too. Using partial data.");
+          onDataExtracted(regexData, {});
         }
       } catch (aiError) {
-        console.warn("AI Parsing failed:", aiError);
-        toast.dismiss();
-        toast.warning("AI busy, switching to offline mode... ⚡");
+        console.error("AI Error:", aiError);
+        toast.error("AI Error. Using partial data.");
+        onDataExtracted(regexData, {});
       }
 
-      // ৩. Fallback Regex Parsing
-      const manualData = parseReceiptData(text);
-      if (Object.keys(manualData).length > 0) {
-        onDataExtracted(manualData, {});
-        toast.success("Data extracted using offline mode! ⚡");
-      } else {
-        toast.error("Could not read receipt data automatically.");
-      }
     } catch (error) {
       console.error("Extraction error:", error);
       toast.error("Failed to process PDF.");

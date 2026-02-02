@@ -58,3 +58,22 @@ export function verifyExtraction(rawText, extractedData) {
 
   return status;
 }
+
+/**
+ * Level 2: Validation Gate
+ * Checks if the Regex extraction found all critical fields.
+ * Returns { isValid: boolean, missingFields: string[] }
+ */
+export function validateExtraction(data) {
+  const criticalFields = [
+    "receiptNo",
+    "total",
+    "date",
+    "classOfInsurance"
+  ];
+
+  const missingFields = criticalFields.filter(f => !data[f] || data[f] === "");
+  const isValid = missingFields.length === 0;
+
+  return { isValid, missingFields };
+}
