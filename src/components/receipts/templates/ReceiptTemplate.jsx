@@ -11,8 +11,6 @@ const COMPANY_CONFIG = {
     address: `Head Office: Al-Razi Complex (12th Floor), 166-167, Shaheed Syed Nazrul Islam Sarani, 
 Purana Paltan, Dhaka- 1000. Tel: PABX: 55111601-3, 9570147, 9570450 Fax: 88-02-9556103, 
 email: globalho2000@gmail.com web: www.globalinsurancebd.com`,
-    noteText: "* Note: If have any complain about Insurance, call 16130.",
-    noteColor: "#ff0000",
   },
   FEDERAL: {
     headerSrc: "/federal/header.webp",
@@ -21,8 +19,6 @@ email: globalho2000@gmail.com web: www.globalinsurancebd.com`,
     address: `Head Office: Navana D.H. Tower (6th Floor), 6, Panthapath, Dhaka-1215, Bangladesh. 
 Phone: 02223374054-55, 02223374056, 02223374057, 02223374058  
 Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`,
-    noteText: "* Note: If have any complain about Insurance, call 16130.",
-    noteColor: "#ff0000",
   },
   TAKAFUL: {
     headerSrc: "/takaful/takaful.webp",
@@ -31,9 +27,6 @@ Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`
     address: `Head Office: Monir Tower (7th, 8th & 9th Floor), 167/1, D.I.T. Extension Road, Motijheel (Fakirapool), 
 Dhaka. Bangladesh Phone: 88-02-41070071-3 Fax: 880-2-41070083
 email: takaful@dhaka.net web: www.takaful.com.bd`,
-    noteText:
-      "* Note: Takaful Islami Insurance Limited is a Shariah compliant non-life insurance company.",
-    noteColor: "#555555",
   },
 };
 
@@ -57,14 +50,14 @@ export default function ReceiptTemplate({ data, code }) {
         </div>
 
         {/* Address */}
-        <div className="text-center text-sm text-black whitespace-pre-line leading-5.25 mt-2">
+        <div className="text-center text-sm text-black whitespace-pre-line leading-5.25">
           {config.address}
         </div>
 
         {/* BIN and Download */}
         <div className="flex justify-between mt-10.5 text-black">
           <div className="inline-block">
-            <label htmlFor="BIN">BIN : {config.bin}</label>
+            <label htmlFor="BIN">BIN : {data.bin || config.bin}</label>
           </div>
           <div className="inline-block text-right print:hidden">
             <DownloadPDFButton shortCode={code || data.shortCode} data={data} />
@@ -75,7 +68,7 @@ export default function ReceiptTemplate({ data, code }) {
         <div className="text-black">
           {/* Title */}
           <div className="mt-[3.5px] text-center mb-3.5 pr-3.5">
-            <label className="font-bold text-lg">MONEY RECEIPT</label>
+            <label>MONEY RECEIPT</label>
             <p className="text-[11px] text-black">MUSHAK : 6.3</p>
           </div>
 
@@ -88,7 +81,7 @@ export default function ReceiptTemplate({ data, code }) {
                   <div className="basis-5/12">Issuing Office</div>
                   <div className="basis-7/12">
                     <div className="float-left pl-1">:</div>
-                    <div className="float-left pl-1.25 uppercase">
+                    <div className="float-left pl-1.25">
                       {data.issuingOffice || "N/A"}
                     </div>
                   </div>
@@ -132,7 +125,7 @@ export default function ReceiptTemplate({ data, code }) {
               <span className="font-bold">Received with thanks from</span>
             </div>
             <div className="basis-[67.5%] border-b border-[#333] pr-[10.5px]">
-              <span className="uppercase">{data.receivedFrom || ""}</span>
+              <span>{data.receivedFrom || ""}</span>
             </div>
           </div>
 
@@ -142,7 +135,7 @@ export default function ReceiptTemplate({ data, code }) {
               <span>The sum of</span>
             </div>
             <div className="basis-[84.5%] border-b border-[#333]">
-              {data.sumOf || ""}
+              <span>Tk. </span> {data.sumOf || ""}
             </div>
           </div>
 
@@ -215,6 +208,22 @@ export default function ReceiptTemplate({ data, code }) {
                       })}
                     </td>
                   </tr>
+                  {parseFloat(data.stamp || 0) > 0 && (
+                    <tr className="border border-[#333]">
+                      <td className="p-[3px_9px] border border-[#333] pl-1.75">
+                        Stamp
+                      </td>
+                      <td className="p-[3px_9px] border border-[#333] text-center">
+                        BDT
+                      </td>
+                      <td className="p-[3px_9px] border border-[#333] text-right pr-1.75">
+                        {parseFloat(data.stamp).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </td>
+                    </tr>
+                  )}
                   <tr className="bg-[lightgray] border border-[#333]">
                     <td className="p-[3px_9px] border border-[#333] pl-1.75">
                       Total
@@ -249,10 +258,12 @@ export default function ReceiptTemplate({ data, code }) {
             </div>
           </div>
 
-          {/* Footer note */}
-          <div className="pb-4 mt-2">
-            <label className="text-[12px]" style={{ color: config.noteColor }}>
-              {config.noteText}
+          {/* Red warning */}
+          <div className="pb-2">
+            <label className="text-[#ff0000]">
+              <span>
+                * Note: If have any complain about Insurance, call 16130.
+              </span>
             </label>
           </div>
         </div>

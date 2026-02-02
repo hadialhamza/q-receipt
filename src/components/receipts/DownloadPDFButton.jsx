@@ -302,10 +302,9 @@ export default function DownloadPDFButton({ shortCode, data }) {
   return (
     <button
       onClick={handleDownload}
-      disabled={isGenerating}
-      className="text-primary underline text-lg hover:underline font-medium transition-colors disabled:opacity-50"
+      className="text-[#0d6efd] hover:text-[#0a58ca] underline text-lg hover:underline font-medium transition-colors disabled:opacity-50"
     >
-      {isGenerating ? "Generating..." : "Download PDF"}
+      Download PDF
     </button>
   );
 }
