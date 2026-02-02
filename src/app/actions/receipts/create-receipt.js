@@ -19,7 +19,9 @@ const receiptSchema = z.object({
   chequeDate: z.string().optional(),
   premium: z.string(),
   vat: z.string(),
+  stamp: z.string().optional(), // Added Stamp
   total: z.string(),
+  bin: z.string().optional(), // Added BIN
 });
 
 /**
@@ -32,11 +34,14 @@ export async function createReceipt(data) {
     // Ensure short code index exists
     await ensureShortCodeIndex();
 
+
+
     // Validate data
     const validatedData = receiptSchema.parse(data);
 
-    // Generate unique receipt number
-    const receiptNo = await generateReceiptNumber();
+    // Use receipt number from client
+    // const receiptNo = await generateReceiptNumber(); // REMOVED: Overwriting logic
+
 
     // Generate unique short code for public URL
     const shortCode = await generateUniqueShortCode();
@@ -44,7 +49,8 @@ export async function createReceipt(data) {
     // Prepare receipt document
     const receipt = {
       ...validatedData,
-      receiptNo,
+      // receiptNo is already in validatedData
+      // receiptNo,
       shortCode,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -56,7 +62,7 @@ export async function createReceipt(data) {
     return {
       success: true,
       data: {
-        receiptNo,
+        receiptNo: validatedData.receiptNo,
         shortCode,
         id: result._id.toString(),
       },
@@ -78,18 +84,4 @@ export async function createReceipt(data) {
   }
 }
 
-/**
- * Generate unique receipt number
- * Format: GIL-YYYYMMDD-XXXX
- */
-async function generateReceiptNumber() {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
 
-  // Random 4-digit number
-  const random = Math.floor(1000 + Math.random() * 9000);
-
-  return `GIL-${year}${month}${day}-${random}`;
-}

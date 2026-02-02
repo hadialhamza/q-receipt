@@ -3,15 +3,51 @@
 import Image from "next/image";
 import DownloadPDFButton from "../DownloadPDFButton";
 
-export default function GlobalTemplate({ data, code }) {
+const COMPANY_CONFIG = {
+  GLOBAL: {
+    headerSrc: "/global/header.webp",
+    alt: "Global Insurance PLC",
+    bin: "000251825-0203",
+    address: `Head Office: Al-Razi Complex (12th Floor), 166-167, Shaheed Syed Nazrul Islam Sarani, 
+Purana Paltan, Dhaka- 1000. Tel: PABX: 55111601-3, 9570147, 9570450 Fax: 88-02-9556103, 
+email: globalho2000@gmail.com web: www.globalinsurancebd.com`,
+    noteText: "* Note: If have any complain about Insurance, call 16130.",
+    noteColor: "#ff0000",
+  },
+  FEDERAL: {
+    headerSrc: "/federal/header.webp",
+    alt: "Federal Insurance PLC",
+    bin: "000251825-0203",
+    address: `Head Office: Navana D.H. Tower (6th Floor), 6, Panthapath, Dhaka-1215, Bangladesh. 
+Phone: 02223374054-55, 02223374056, 02223374057, 02223374058  
+Fax: 02223374062 Email: headoffice@federalinsubd.com Web: www.federalinsubd.com`,
+    noteText: "* Note: If have any complain about Insurance, call 16130.",
+    noteColor: "#ff0000",
+  },
+  TAKAFUL: {
+    headerSrc: "/takaful/takaful.webp",
+    alt: "Takaful Islami Insurance Limited",
+    bin: "000251825-0203",
+    address: `Head Office: Monir Tower (7th, 8th & 9th Floor), 167/1, D.I.T. Extension Road, Motijheel (Fakirapool), 
+Dhaka. Bangladesh Phone: 88-02-41070071-3 Fax: 880-2-41070083
+email: takaful@dhaka.net web: www.takaful.com.bd`,
+    noteText:
+      "* Note: Takaful Islami Insurance Limited is a Shariah compliant non-life insurance company.",
+    noteColor: "#555555",
+  },
+};
+
+export default function ReceiptTemplate({ data, code }) {
+  const config = COMPANY_CONFIG[data.companyType] || COMPANY_CONFIG.GLOBAL;
+
   return (
     <div className="max-w-200 mx-auto text-black">
       <div className="bg-white px-[10.5px]">
         {/* Header Image */}
         <div className="text-center pt-3.5">
           <Image
-            src="/global/header.webp"
-            alt="Global Insurance PLC"
+            src={config.headerSrc}
+            alt={config.alt}
             width={800}
             height={100}
             className="w-full h-auto"
@@ -21,16 +57,14 @@ export default function GlobalTemplate({ data, code }) {
         </div>
 
         {/* Address */}
-        <div className="text-center text-sm text-black whitespace-pre-line leading-5.25">
-          {`Head Office: Al-Razi Complex (12th Floor), 166-167, Shaheed Syed Nazrul Islam Sarani, 
-            Purana Paltan, Dhaka- 1000. Tel: PABX: 55111601-3, 9570147, 9570450 Fax: 88-02-9556103, 
-            email: globalho2000@gmail.com web: www.globalinsurancebd.com`}
+        <div className="text-center text-sm text-black whitespace-pre-line leading-5.25 mt-2">
+          {config.address}
         </div>
 
         {/* BIN and Download */}
         <div className="flex justify-between mt-10.5 text-black">
           <div className="inline-block">
-            <label htmlFor="BIN">BIN : 000251825-0203</label>
+            <label htmlFor="BIN">BIN : {config.bin}</label>
           </div>
           <div className="inline-block text-right print:hidden">
             <DownloadPDFButton shortCode={code || data.shortCode} data={data} />
@@ -41,7 +75,7 @@ export default function GlobalTemplate({ data, code }) {
         <div className="text-black">
           {/* Title */}
           <div className="mt-[3.5px] text-center mb-3.5 pr-3.5">
-            <label>MONEY RECEIPT</label>
+            <label className="font-bold text-lg">MONEY RECEIPT</label>
             <p className="text-[11px] text-black">MUSHAK : 6.3</p>
           </div>
 
@@ -54,7 +88,7 @@ export default function GlobalTemplate({ data, code }) {
                   <div className="basis-5/12">Issuing Office</div>
                   <div className="basis-7/12">
                     <div className="float-left pl-1">:</div>
-                    <div className="float-left pl-1.25">
+                    <div className="float-left pl-1.25 uppercase">
                       {data.issuingOffice || "N/A"}
                     </div>
                   </div>
@@ -98,7 +132,7 @@ export default function GlobalTemplate({ data, code }) {
               <span className="font-bold">Received with thanks from</span>
             </div>
             <div className="basis-[67.5%] border-b border-[#333] pr-[10.5px]">
-              <span>{data.receivedFrom || ""}</span>
+              <span className="uppercase">{data.receivedFrom || ""}</span>
             </div>
           </div>
 
@@ -215,10 +249,10 @@ export default function GlobalTemplate({ data, code }) {
             </div>
           </div>
 
-          {/* Red warning */}
-          <div className="pb-2">
-            <label className="text-[#ff0000]">
-              * Note: If have any complain about Insurance, call 16130.
+          {/* Footer note */}
+          <div className="pb-4 mt-2">
+            <label className="text-[12px]" style={{ color: config.noteColor }}>
+              {config.noteText}
             </label>
           </div>
         </div>

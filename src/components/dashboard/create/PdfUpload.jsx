@@ -8,7 +8,7 @@ import { parseReceiptData } from "@/lib/parse-receipt";
 import { parseReceiptWithAI } from "@/app/actions/ai/groq-parser";
 import { verifyExtraction } from "@/lib/verification";
 import { Button } from "@/components/ui/button";
-import { GlassMagnifier } from "@/components/ui/GlassMagnifier"; // আমাদের কাস্টম কম্পোনেন্ট
+import { GlassMagnifier } from "@/components/ui/GlassMagnifier";
 
 export function PdfUpload({ onDataExtracted }) {
   const [loading, setLoading] = useState(false);
@@ -28,20 +28,17 @@ export function PdfUpload({ onDataExtracted }) {
     try {
       toast.info("Processing Receipt...");
 
-      // ১. প্যারালাল প্রসেসিং: টেক্সট এবং ইমেজ একসাথে জেনারেট হবে
       const [text, imageUrl] = await Promise.all([
-        extractTextFromPdf(file), // টেক্সট বের করা
-        renderPdfToImage(file), // ইমেজ বানানো (Zoom এর জন্য)
+        extractTextFromPdf(file),
+        renderPdfToImage(file), 
       ]);
 
-      // প্রিভিউ সেট করা
       if (imageUrl) {
         setPreviewImage(imageUrl);
       }
 
-      console.log("=== EXTRACTED TEXT ===", text);
-
-      // ২. AI Parsing শুরু
+      console.log(text);
+      // ২. AI Parsing
       try {
         toast.loading("AI Analyzing...");
         const aiResult = await parseReceiptWithAI(text);
@@ -160,7 +157,7 @@ export function PdfUpload({ onDataExtracted }) {
               onChange={handleFileUpload}
               disabled={loading}
             />
-            <span className="block w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3 rounded-lg transition-all shadow-sm hover:shadow-md disabled:opacity-50 flex items-center justify-center gap-2">
+            <span className=" w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium py-3 rounded-lg transition-all shadow-sm hover:shadow-md disabled:opacity-50 flex items-center justify-center gap-2">
               {loading ? (
                 <>
                   <Loader2 className="animate-spin" size={18} />

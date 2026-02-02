@@ -116,3 +116,5 @@ export async function ensureShortCodeIndex() {
     console.log("Short code index already exists or created");
   }
 }
+
+

@@ -25,10 +25,11 @@ const receiptSchema = z.object({
   companyType: z.enum(["GLOBAL", "FEDERAL", "TAKAFUL"], {
     required_error: "Please select a company",
   }),
-  issuingOffice: z.string().min(1, "Issuing office is required"),
+  issuingOffice: z.string().optional(), // Now static/hidden
+  bin: z.string().min(1, "BIN is required"),
   receiptNo: z.string().min(1, "Receipt number is required"),
   classOfInsurance: z.string().min(1, "Class of insurance is required"),
-  date: z.string().min(1, "Date is required"),
+  date: z.string().min(1, "Date is required"), // Text validation
   receivedFrom: z.string().min(1, "Received from is required"),
   sumOf: z.string().min(1, "Sum is required"),
   modeOfPayment: z.string().min(1, "Mode of payment is required"),
@@ -37,6 +38,7 @@ const receiptSchema = z.object({
   chequeDate: z.string().optional(),
   premium: z.string().min(1, "Premium is required"),
   vat: z.string().min(1, "VAT is required"),
+  stamp: z.string().optional(),
   total: z.string().min(1, "Total is required"),
 });
 
@@ -55,10 +57,11 @@ export default function ReceiptForm() {
     resolver: zodResolver(receiptSchema),
     defaultValues: {
       companyType: "GLOBAL",
-      issuingOffice: "Rangpur Branch",
+      issuingOffice: "Rangpur Branch", // Static Default
+      bin: "",
       receiptNo: "",
       classOfInsurance: "",
-      date: new Date().toISOString().split("T")[0],
+      date: "", // Empty string for text input
       receivedFrom: "",
       sumOf: "",
       modeOfPayment: "",
@@ -67,21 +70,24 @@ export default function ReceiptForm() {
       chequeDate: "",
       premium: "",
       vat: "",
+      stamp: "",
       total: "",
     },
   });
 
   const premium = watch("premium");
   const vat = watch("vat");
+  const stamp = watch("stamp");
 
   useEffect(() => {
     if (premium && vat) {
       const premiumNum = parseFloat(premium.replace(/,/g, "")) || 0;
       const vatNum = parseFloat(vat.replace(/,/g, "")) || 0;
-      const totalNum = premiumNum + vatNum;
+      const stampNum = parseFloat(stamp?.replace(/,/g, "") || "0") || 0;
+      const totalNum = premiumNum + vatNum + stampNum;
       setValue("total", totalNum.toFixed(2));
     }
-  }, [premium, vat, setValue]);
+  }, [premium, vat, stamp, setValue]);
 
   const handleAutoFill = (extractedData, status) => {
     setVerificationStatus(status || {});
@@ -175,21 +181,23 @@ export default function ReceiptForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="relative">
-                <Label htmlFor="issuingOffice">Issuing Office</Label>
+                <Label htmlFor="bin">BIN</Label>
                 <div className="relative">
                   <Input
-                    id="issuingOffice"
-                    {...register("issuingOffice")}
-                    readOnly
-                    className="bg-muted pr-10"
+                    id="bin"
+                    {...register("bin")}
+                    className="pr-10"
+                    placeholder="e.g. 000001297-0202"
                   />
-                  {renderIcon("issuingOffice")}
+                  {renderIcon("bin")}
                 </div>
-                {errors.issuingOffice && (
+                {errors.bin && (
                   <p className="text-destructive text-xs mt-1">
-                    {errors.issuingOffice.message}
+                    {errors.bin.message}
                   </p>
                 )}
+                {/* Hidden Static Field for DB Compatibility */}
+                <input type="hidden" {...register("issuingOffice")} />
               </div>
               <div className="relative">
                 <Label htmlFor="receiptNo">Receipt No</Label>
@@ -227,12 +235,13 @@ export default function ReceiptForm() {
                 )}
               </div>
               <div className="relative">
-                <Label htmlFor="date">Date</Label>
+                <Label htmlFor="date">Date (DD-MM-YYYY)</Label>
                 <div className="relative">
                   <Input
                     id="date"
                     {...register("date")}
-                    type="date"
+                    type="text"
+                    placeholder="dd-mm-yyyy"
                     className="pr-10"
                   />
                   {renderIcon("date")}
@@ -329,12 +338,13 @@ export default function ReceiptForm() {
                 </div>
               </div>
               <div className="relative">
-                <Label htmlFor="chequeDate">Cheque Date (Optional)</Label>
+                <Label htmlFor="chequeDate">Cheque Date (DD-MM-YYYY)</Label>
                 <div className="relative">
                   <Input
                     id="chequeDate"
                     {...register("chequeDate")}
-                    type="date"
+                    type="text"
+                    placeholder="dd-mm-yyyy"
                     className="pr-10"
                   />
                   {renderIcon("chequeDate")}
@@ -384,6 +394,22 @@ export default function ReceiptForm() {
                       className="bg-muted pr-10"
                     />
                     {renderIcon("total")}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="relative">
+                  <Label htmlFor="stamp">Stamp (Optional)</Label>
+                  <div className="relative">
+                    <Input
+                      id="stamp"
+                      {...register("stamp")}
+                      type="number"
+                      step="0.01"
+                      className="pr-10"
+                    />
+                    {renderIcon("stamp")}
                   </div>
                 </div>
               </div>
