@@ -159,7 +159,7 @@ export default function ReceiptForm() {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a company" />
                   </SelectTrigger>
-                  <SelectContent position="popper" className="z-[100]">
+                  <SelectContent position="popper" className="z-100">
                     <SelectItem value="GLOBAL">
                       Global Insurance Ltd.
                     </SelectItem>

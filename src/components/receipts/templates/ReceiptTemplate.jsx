@@ -30,11 +30,36 @@ email: takaful@dhaka.net web: www.takaful.com.bd`,
   },
 };
 
+import React from "react";
+
 export default function ReceiptTemplate({ data, code }) {
   const config = COMPANY_CONFIG[data.companyType] || COMPANY_CONFIG.GLOBAL;
+  const [showPromo, setShowPromo] = React.useState(true);
 
   return (
-    <div className="max-w-200 mx-auto text-black">
+    <div className="max-w-200 mx-auto text-black relative">
+      {/* Promotion Modal */}
+      {showPromo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+          <div className="relative bg-transparent -mt-20">
+            <button
+              onClick={() => setShowPromo(false)}
+              className="absolute -top-8.5 -right-0.5 z-10 py-1.75 px-3 flex items-center justify-center rounded-[3px] bg-white font-bold text-black shadow-md hover:bg-gray-100"
+            >
+              <span className="text-[14px]">X</span>
+            </button>
+            <Image
+              src="/promotion/app_qrcode.png"
+              alt="Download App"
+              width={600}
+              height={600}
+              className="w-full max-w-112.5 h-auto rounded-lg"
+              priority
+            />
+          </div>
+        </div>
+      )}
+
       <div className="bg-white px-[10.5px]">
         {/* Header Image */}
         <div className="text-center pt-3.5">
