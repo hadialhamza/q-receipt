@@ -38,6 +38,7 @@ export async function parseReceiptWithAI(text) {
       - total (Extract from "Total BDT")
       - bin (Extract from "BIN :")
       - stamp (Extract from "Stamp BDT" if present)
+      - clientName (Extract ONLY the Client Name or Business Name(Not the bank name) from "Received with thanks from". Remove prefixes like "M/S", "Mr.", "Prop." unless essential. Business names mostly can be Bangladeshi local standard names like "M/S ABC Traders", "XYZ Enterprise", "ABC Hardware", etc.)
 
       Receipt Text:
       ${text}

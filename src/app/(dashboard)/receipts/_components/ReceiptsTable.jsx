@@ -165,14 +165,17 @@ export default function ReceiptsTable({
                       {receipt.receiptNo}
                     </td>
                     <td className="px-6 py-4">
-                      <ClientNameCell rawText={receipt.receivedFrom} />
+                      <ClientNameCell
+                        rawText={receipt.receivedFrom}
+                        storedName={receipt.clientName}
+                      />
                     </td>
                     <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
-                      {new Date(receipt.date || receipt.createdAt).toLocaleDateString("en-GB", {
+                      {receipt.createdAt ? new Date(receipt.createdAt).toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "short",
                         year: "numeric"
-                      })}
+                      }) : "N/A"}
                     </td>
                     <td className="px-6 py-4 font-bold text-right whitespace-nowrap">
                       ৳ {parseFloat(receipt.total || 0).toLocaleString()}

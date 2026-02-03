@@ -354,7 +354,7 @@ export const ReceiptDocument = ({ data, qrCodeDataUrl, shortCode }) => {
             Drawn on
           </Text>
           <View style={styles.underline}>
-            <Text>{data.drawnOn || ""}</Text>
+            <Text>{data.drawnOn || " "}</Text>
           </View>
         </View>
 
@@ -378,7 +378,7 @@ export const ReceiptDocument = ({ data, qrCodeDataUrl, shortCode }) => {
                 }}
               >
                 <TableRow label="Premium" amount={data.premium} />
-                <TableRow label="Vat" amount={data.vat} />
+                <TableRow label="VAT" amount={data.vat} />
                 {parseFloat(data.stamp || 0) > 0 && (
                   <TableRow label="Stamp" amount={data.stamp} />
                 )}

@@ -19,9 +19,10 @@ const receiptSchema = z.object({
   chequeDate: z.string().optional(),
   premium: z.string(),
   vat: z.string(),
-  stamp: z.string().optional(), // Added Stamp
+  stamp: z.string().optional(),
   total: z.string(),
-  bin: z.string().optional(), // Added BIN
+  bin: z.string().optional(),
+  clientName: z.string().optional(),
 });
 
 /**

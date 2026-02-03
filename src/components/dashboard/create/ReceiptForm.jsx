@@ -25,11 +25,11 @@ const receiptSchema = z.object({
   companyType: z.enum(["GLOBAL", "FEDERAL", "TAKAFUL"], {
     required_error: "Please select a company",
   }),
-  issuingOffice: z.string().optional(), // Now static/hidden
+  issuingOffice: z.string().optional(),
   bin: z.string().min(1, "BIN is required"),
   receiptNo: z.string().min(1, "Receipt number is required"),
   classOfInsurance: z.string().min(1, "Class of insurance is required"),
-  date: z.string().min(1, "Date is required"), // Text validation
+  date: z.string().min(1, "Date is required"),
   receivedFrom: z.string().min(1, "Received from is required"),
   sumOf: z.string().min(1, "Sum is required"),
   modeOfPayment: z.string().min(1, "Mode of payment is required"),
@@ -40,6 +40,7 @@ const receiptSchema = z.object({
   vat: z.string().min(1, "VAT is required"),
   stamp: z.string().optional(),
   total: z.string().min(1, "Total is required"),
+  clientName: z.string().optional(),
 });
 
 export default function ReceiptForm() {
@@ -57,11 +58,11 @@ export default function ReceiptForm() {
     resolver: zodResolver(receiptSchema),
     defaultValues: {
       companyType: "GLOBAL",
-      issuingOffice: "Rangpur Branch", // Static Default
+      issuingOffice: "Rangpur Branch",
       bin: "",
       receiptNo: "",
       classOfInsurance: "",
-      date: "", // Empty string for text input
+      date: "",
       receivedFrom: "",
       sumOf: "",
       modeOfPayment: "",
@@ -72,6 +73,7 @@ export default function ReceiptForm() {
       vat: "",
       stamp: "",
       total: "",
+      clientName: "",
     },
   });
 
@@ -198,6 +200,8 @@ export default function ReceiptForm() {
                 )}
                 {/* Hidden Static Field for DB Compatibility */}
                 <input type="hidden" {...register("issuingOffice")} />
+                {/* Hidden Field for Client Name */}
+                <input type="hidden" {...register("clientName")} />
               </div>
               <div className="relative">
                 <Label htmlFor="receiptNo">Receipt No</Label>
