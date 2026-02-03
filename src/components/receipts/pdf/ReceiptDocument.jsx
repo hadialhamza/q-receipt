@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   underline: {
     flex: 1,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.5,
     borderBottomColor: "#333333",
     paddingBottom: 4,
     marginLeft: 2,
@@ -139,27 +139,27 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: "row",
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.5,
     borderColor: "#333",
     height: 20,
     alignItems: "center",
   },
   tableRowHead: {
-    borderTopWidth: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
+    borderTopWidth: 0.5,
+    borderLeftWidth: 0.5,
+    borderRightWidth: 0.5,
   },
   tableRowBody: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
+    borderLeftWidth: 0.5,
+    borderRightWidth: 0.5,
   },
   tableRowLast: {
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.5,
   },
   colLabel: {
     width: "50%",
     paddingLeft: 10,
-    borderRightWidth: 1,
+    borderRightWidth: 0.5,
     borderColor: "#333",
     height: "100%",
     justifyContent: "center",
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   colCurrency: {
     width: "15%",
     textAlign: "center",
-    borderRightWidth: 1,
+    borderRightWidth: 0.5,
     borderColor: "#333",
     height: "100%",
     justifyContent: "center",
@@ -237,7 +237,7 @@ const TableRow = ({ label, amount, isTotal = false }) => (
     style={[
       styles.tableRow,
       isTotal ? styles.bgGray : {},
-      isTotal ? null : { borderBottomWidth: 1 },
+      isTotal ? null : { borderBottomWidth: 0.5 },
     ]}
   >
     <View style={styles.colLabel}>
@@ -371,9 +371,9 @@ export const ReceiptDocument = ({ data, qrCodeDataUrl, shortCode }) => {
             <View style={styles.tableWrapper}>
               <View
                 style={{
-                  borderTopWidth: 1,
-                  borderLeftWidth: 1,
-                  borderRightWidth: 1,
+                  borderTopWidth: 0.5,
+                  borderLeftWidth: 0.5,
+                  borderRightWidth: 0.5,
                   borderColor: "black",
                 }}
               >
@@ -390,7 +390,7 @@ export const ReceiptDocument = ({ data, qrCodeDataUrl, shortCode }) => {
           {/* QR Code placed absolute relative to this container or using negative margins/flex */}
           {qrCodeDataUrl && (
             <View style={{ position: "absolute", right: 90, top: 45 }}>
-              <Image src={qrCodeDataUrl} style={{ width: 105, height: 105 }} />
+              <Image src={qrCodeDataUrl} style={{ width: 110, height: 110 }} />
             </View>
           )}
         </View>
