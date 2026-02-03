@@ -2,18 +2,18 @@
 
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ArrowUpRight, ArrowDownRight, TrendingUp } from "lucide-react"; // আইকন
+import { ArrowUpRight, ArrowDownRight, TrendingUp } from "lucide-react";
 
 export function CustomStatsCard({
   title,
   value,
-  icon, // আইকন এলিমেন্ট বা কম্পোনেন্ট
-  trend, // যেমন: "+12.5%"
-  trendDirection = "up", // "up" or "down"
+  icon, 
+  trend, 
+  trendDirection = "up", 
   className,
   colorString,
 }) {
-  // কালার কনফিগারেশন (একটু আপগ্রেড করা হয়েছে গ্রেডিয়েন্ট লুকের জন্য)
+  // Color configuration
   const colorConfigs = {
     purple: {
       bg: "bg-violet-100",
@@ -59,9 +59,9 @@ export function CustomStatsCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      whileHover={{ y: -5, scale: 1.02 }} // হোভার এফেক্ট
+      whileHover={{ y: -5, scale: 1.02 }} // Hover effect
       className={cn(
-        "relative overflow-hidden rounded-2xl border p-6 transition-shadow hover:shadow-lg h-[160px]", // হাইট একটু বাড়ানো হয়েছে
+        "relative overflow-hidden rounded-2xl border p-6 transition-shadow hover:shadow-lg h-40",
         theme.bg,
         theme.border,
         className,
@@ -73,7 +73,7 @@ export function CustomStatsCard({
           <h3 className="text-sm font-bold text-gray-600 tracking-wide uppercase">
             {title}
           </h3>
-          {/* আইকন বক্স */}
+          {/* Icon Box */}
           <div className={cn("p-2 rounded-lg [&_svg]:w-5 [&_svg]:h-5", theme.iconBg, theme.text)}>
             {icon || <TrendingUp className="w-5 h-5" />}
           </div>
