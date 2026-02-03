@@ -69,6 +69,16 @@ export function parseReceiptData(text) {
     );
     if (clientMatch) {
       data.receivedFrom = clientMatch[1].replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+
+      // Extract Client Name (Regex Logic)
+      const nameRegex = /(?:Mr\.|Md\.|Mrs\.|Mst\.|M\/S|Prop\.|A\/c)\s+([^,\n;]+)/i;
+      const nameMatch = clientMatch[1].match(nameRegex);
+      if (nameMatch && nameMatch[1]) {
+        data.clientName = nameMatch[1].trim();
+      } else {
+        // Fallback: First few words of receivedFrom
+        data.clientName = data.receivedFrom.split(/[,;]/)[0].substring(0, 50).trim();
+      }
     }
 
     // 4. Sum of (Text in parentheses)

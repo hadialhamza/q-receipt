@@ -9,7 +9,6 @@ import { parseReceiptWithAI } from "@/app/actions/ai/groq-parser";
 import { verifyExtraction, validateExtraction } from "@/lib/verification";
 import { Button } from "@/components/ui/button";
 import { GlassMagnifier } from "@/components/ui/GlassMagnifier";
-import { extractClientNameAI } from "@/app/actions/receipts/extract-client-name";
 
 export function PdfUpload({ onDataExtracted }) {
   const [loading, setLoading] = useState(false);
@@ -52,29 +51,16 @@ export function PdfUpload({ onDataExtracted }) {
       const { isValid, missingFields } = validateExtraction(regexData);
 
       if (isValid) {
-        // SUCCESS: Regex found regular fields
-        // BUT: We need AI for Client Name as requested
-        console.log("✅ Regex Extraction Successful! Fetching Name via AI...");
-
-        let clientName = null;
-        try {
-          const nameResult = await extractClientNameAI(text);
-          if (nameResult.success) {
-            clientName = nameResult.name;
-          }
-        } catch (err) {
-          console.error("Name extraction failed", err);
-        }
-
-        const finalData = { ...regexData, clientName };
+        // SUCCESS: Regex found everything (including clientName via regex)
+        console.log("✅ Regex Extraction Successful!", regexData);
 
         toast.success("Data extracted successfully! ⚡");
 
-        const verificationStatus = verifyExtraction(text, finalData);
-        onDataExtracted(finalData, verificationStatus);
+        const verificationStatus = verifyExtraction(text, regexData);
+        onDataExtracted(regexData, verificationStatus);
 
         setLoading(false);
-        return; // EXIT EARLY
+        return; // EXIT EARLY (Skip AI)
       }
 
       // ----------------------------------------------------
