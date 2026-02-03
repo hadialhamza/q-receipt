@@ -77,7 +77,7 @@ export default function WelcomeBanner({ userName = "User", userImage }) {
             >
               <GreetingIcon className="h-5 w-5 animate-pulse" />
               <span className="text-sm font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400">
-                Overview
+                Dashboard Overview
               </span>
             </div>
 

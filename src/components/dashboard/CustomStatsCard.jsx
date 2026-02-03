@@ -7,9 +7,9 @@ import { ArrowUpRight, ArrowDownRight, TrendingUp } from "lucide-react";
 export function CustomStatsCard({
   title,
   value,
-  icon, 
-  trend, 
-  trendDirection = "up", 
+  icon,
+  trend,
+  trendDirection = "up",
   className,
   colorString,
 }) {
@@ -56,10 +56,8 @@ export function CustomStatsCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
       whileHover={{ y: -5, scale: 1.02 }} // Hover effect
+      transition={{ duration: 0.2 }}
       className={cn(
         "relative overflow-hidden rounded-2xl border p-6 transition-shadow hover:shadow-lg h-40",
         theme.bg,
