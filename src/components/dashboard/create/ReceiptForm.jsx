@@ -8,6 +8,7 @@ import { Loader2, Save, ShieldCheck, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createReceipt } from "@/app/actions/receipts/create-receipt";
+import { updateReceipt } from "@/app/actions/receipts/update-receipt";
 import { PdfUpload } from "./PdfUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,10 +44,12 @@ const receiptSchema = z.object({
   clientName: z.string().optional(),
 });
 
-export default function ReceiptForm() {
+export default function ReceiptForm({ initialData = null, receiptId = null }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [verificationStatus, setVerificationStatus] = useState({});
+
+  const isEditMode = !!receiptId;
 
   const {
     register,
@@ -57,23 +60,23 @@ export default function ReceiptForm() {
   } = useForm({
     resolver: zodResolver(receiptSchema),
     defaultValues: {
-      companyType: "GLOBAL",
-      issuingOffice: "Rangpur Branch",
-      bin: "",
-      receiptNo: "",
-      classOfInsurance: "",
-      date: "",
-      receivedFrom: "",
-      sumOf: "",
-      modeOfPayment: "",
-      drawnOn: "",
-      issuedAgainst: "",
-      chequeDate: "",
-      premium: "",
-      vat: "",
-      stamp: "",
-      total: "",
-      clientName: "",
+      companyType: initialData?.companyType || "GLOBAL",
+      issuingOffice: initialData?.issuingOffice || "Rangpur Branch",
+      bin: initialData?.bin || "",
+      receiptNo: initialData?.receiptNo || "",
+      classOfInsurance: initialData?.classOfInsurance || "",
+      date: initialData?.date || "",
+      receivedFrom: initialData?.receivedFrom || "",
+      sumOf: initialData?.sumOf || "",
+      modeOfPayment: initialData?.modeOfPayment || "",
+      drawnOn: initialData?.drawnOn || "",
+      issuedAgainst: initialData?.issuedAgainst || "",
+      chequeDate: initialData?.chequeDate || "",
+      premium: initialData?.premium || "",
+      vat: initialData?.vat || "",
+      stamp: initialData?.stamp || "",
+      total: initialData?.total || "",
+      clientName: initialData?.clientName || "",
     },
   });
 
@@ -124,10 +127,22 @@ export default function ReceiptForm() {
   const onSubmit = async (data) => {
     startTransition(async () => {
       try {
-        const result = await createReceipt(data);
+        let result;
+
+        if (isEditMode) {
+          result = await updateReceipt(receiptId, data);
+        } else {
+          result = await createReceipt(data);
+        }
+
         if (result.success) {
-          toast.success(`Receipt Created! No: ${result.data.receiptNo}`);
+          toast.success(
+            isEditMode
+              ? `Receipt Updated! No: ${result.data.receiptNo}`
+              : `Receipt Created! No: ${result.data.receiptNo}`,
+          );
           router.push("/receipts");
+          router.refresh();
         } else {
           toast.error(result.error);
         }

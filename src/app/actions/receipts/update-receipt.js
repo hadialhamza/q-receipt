@@ -5,10 +5,11 @@ import { revalidatePath } from "next/cache";
 import { findOne, updateOne, COLLECTIONS } from "@/lib/db/helpers";
 import { z } from "zod";
 
-// Same validation schema as create
+// Updated schema to match create-receipt.js
 const receiptSchema = z.object({
-  companyType: z.enum(["GLOBAL", "FEDERAL"]),
-  issuingOffice: z.string().min(1),
+  companyType: z.enum(["GLOBAL", "FEDERAL", "TAKAFUL"]),
+  issuingOffice: z.string().optional(),
+  bin: z.string().optional(),
   receiptNo: z.string().min(1),
   classOfInsurance: z.string().min(1),
   date: z.string(),
@@ -20,7 +21,9 @@ const receiptSchema = z.object({
   chequeDate: z.string().optional(),
   premium: z.string(),
   vat: z.string(),
+  stamp: z.string().optional(),
   total: z.string(),
+  clientName: z.string().optional(),
 });
 
 /**
