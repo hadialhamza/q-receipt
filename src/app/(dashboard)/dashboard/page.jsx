@@ -1,20 +1,31 @@
 import { CustomStatsCard } from "@/components/dashboard/CustomStatsCard";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
-import { RecentReceipts } from "@/components/dashboard/RecentReceipts";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { getDashboardStats } from "@/app/actions/dashboard-stats";
 
-export default function DashboardPage() {
+
+
+import { getServerSession } from "next-auth";
+import { authConfig } from "@/lib/auth.config";
+import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
+
+export default async function DashboardPage() {
+  const session = await getServerSession(authConfig);
+  const { data } = await getDashboardStats();
+
+  const totalReceipts = data?.totalReceipts || 0;
+  const companyCounts = data?.companyCounts || { GLOBAL: 0, FEDERAL: 0, TAKAFUL: 0 };
+  const revenueChartData = data?.revenueChartData || [];
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
-      <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-gradient-primary">Dashboard</h2>
-          <p className="text-muted-foreground">
-            Overview of your receipts and store performance.
-          </p>
-        </div>
+
+      {/* Dynamic Welcome Banner */}
+      <WelcomeBanner userName={session?.user?.name || "User"} />
+
+      <div className="flex items-center justify-end space-y-2">
         <div className="flex items-center space-x-2">
           <Button asChild className="bg-gradient-primary hover:opacity-90 shadow-primary border-none">
             <Link href="/create">
@@ -26,30 +37,29 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <CustomStatsCard
-          title="All User"
-          value="10,234"
+          title="Total Receipts"
+          value={totalReceipts.toLocaleString()}
           colorString="purple"
         />
         <CustomStatsCard
-          title="Event Count"
-          value="536"
+          title="Global Inc"
+          value={companyCounts.GLOBAL?.toLocaleString() || "0"}
+          colorString="blue"
+        />
+        <CustomStatsCard
+          title="Federal"
+          value={companyCounts.FEDERAL?.toLocaleString() || "0"}
           colorString="orange"
         />
         <CustomStatsCard
-          title="Conversations"
-          value="21"
+          title="Takaful"
+          value={companyCounts.TAKAFUL?.toLocaleString() || "0"}
           colorString="green"
-        />
-        <CustomStatsCard
-          title="New User"
-          value="3321"
-          colorString="blue"
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <RevenueChart />
-        <RecentReceipts />
+      <div className="grid gap-4 grid-cols-1">
+        <RevenueChart data={revenueChartData} />
       </div>
     </div>
   );

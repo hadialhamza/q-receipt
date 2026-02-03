@@ -159,6 +159,24 @@
 
 /* Custom Dashboard Gradients - Blue → Indigo → Purple */
 @layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .rotate-x-90 {
+    transform: rotateX(90deg);
+  }
+  .origin-bottom {
+    transform-origin: bottom;
+  }
+  .origin-top {
+    transform-origin: top;
+  }
   /* Primary Gradient - Blue to Indigo */
   .bg-gradient-primary {
     background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #6366f1 100%);
@@ -255,3 +273,5 @@
     @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-800/50;
   }
 }
+
+

@@ -3,19 +3,22 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 
-const data = [
-    { name: "Jan", total: 1200 },
-    { name: "Feb", total: 2100 },
-    { name: "Mar", total: 1800 },
-    { name: "Apr", total: 3200 },
-    { name: "May", total: 2800 },
-    { name: "Jun", total: 4500 },
-    { name: "Jul", total: 4100 },
-];
-
-export function RevenueChart() {
+export function RevenueChart({ data }) {
+    if (!data || data.length === 0) {
+        return (
+            <Card className="col-span-4 border-none shadow-primary glass-card">
+                <CardHeader>
+                    <CardTitle>Revenue Overview</CardTitle>
+                    <CardDescription>No data available for this year</CardDescription>
+                </CardHeader>
+                <CardContent className="h-[350px] flex items-center justify-center text-muted-foreground">
+                    No revenue data found.
+                </CardContent>
+            </Card>
+        )
+    }
     return (
-        <Card className="col-span-4 border-none shadow-primary">
+        <Card className="w-full border-none shadow-primary">
             <CardHeader>
                 <CardTitle>Revenue Overview</CardTitle>
                 <CardDescription>Monthly revenue for the current year</CardDescription>

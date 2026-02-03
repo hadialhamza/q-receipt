@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { insertOne, COLLECTIONS, ensureShortCodeIndex } from "@/lib/db/helpers";
 import { generateUniqueShortCode } from "./generate-short-code";
+import { revalidatePath } from "next/cache";
 
 // Receipt validation schema
 const receiptSchema = z.object({
@@ -60,6 +61,10 @@ export async function createReceipt(data) {
     // Insert into MongoDB
     const result = await insertOne(COLLECTIONS.RECEIPTS, receipt);
 
+    // Revalidate paths
+    revalidatePath("/receipts");
+    revalidatePath("/dashboard");
+
     return {
       success: true,
       data: {
@@ -84,5 +89,4 @@ export async function createReceipt(data) {
     };
   }
 }
-
 
