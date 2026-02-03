@@ -61,6 +61,7 @@ export const getDashboardStats = unstable_cache(
 
             months.forEach(m => revenueByMonth[m] = 0);
 
+            let totalRevenue = 0;
             yearReceipts.forEach(r => {
                 try {
                     const d = new Date(r.createdAt);
@@ -73,6 +74,7 @@ export const getDashboardStats = unstable_cache(
                             amount = parseFloat(r.total.replace(/[^0-9.-]+/g, "")) || 0;
                         }
                         if (m) revenueByMonth[m] += amount;
+                        totalRevenue += amount;
                     }
                 } catch (e) { }
             });
@@ -94,14 +96,82 @@ export const getDashboardStats = unstable_cache(
                 _id: r._id.toString(),
             }));
 
+            // 5. Trending Data Calculation (This Month vs Last Month)
+            const now = new Date();
+            const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+            // Fetch counts for specific ranges
+            const [
+                currentMonthReceipts,
+                lastMonthReceipts,
+                currentMonthUsers,
+                lastMonthUsers,
+                currentMonthCompanyStats,
+                lastMonthCompanyStats
+            ] = await Promise.all([
+                // Receipts
+                receiptsCollection.countDocuments({ createdAt: { $gte: startOfCurrentMonth } }),
+                receiptsCollection.countDocuments({ createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } }),
+
+                // Users
+                usersCollection.countDocuments({ createdAt: { $gte: startOfCurrentMonth } }),
+                usersCollection.countDocuments({ createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } }),
+
+                // Company Stats (Current Month)
+                receiptsCollection.aggregate([
+                    { $match: { createdAt: { $gte: startOfCurrentMonth } } },
+                    { $group: { _id: "$companyType", count: { $sum: 1 } } }
+                ]).toArray(),
+
+                // Company Stats (Last Month)
+                receiptsCollection.aggregate([
+                    { $match: { createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } } },
+                    { $group: { _id: "$companyType", count: { $sum: 1 } } }
+                ]).toArray()
+            ]);
+
+            // Helper to calculate trend
+            const calculateTrend = (current, previous) => {
+                if (previous === 0) {
+                    return current > 0 ? { value: "+100%", direction: "up" } : { value: "0%", direction: "neutral" };
+                }
+                const change = ((current - previous) / previous) * 100;
+                return {
+                    value: `${change > 0 ? "+" : ""}${change.toFixed(1)}%`,
+                    direction: change >= 0 ? "up" : "down"
+                };
+            };
+
+            // Map Company Stats to Object for easier lookup
+            const mapStats = (statsArr) => {
+                const map = { GLOBAL: 0, FEDERAL: 0, TAKAFUL: 0 };
+                statsArr.forEach(s => { if (s._id) map[s._id] = s.count; });
+                return map;
+            };
+
+            const currCompMap = mapStats(currentMonthCompanyStats);
+            const prevCompMap = mapStats(lastMonthCompanyStats);
+
+            const trends = {
+                totalReceipts: calculateTrend(currentMonthReceipts, lastMonthReceipts),
+                totalUsers: calculateTrend(currentMonthUsers, lastMonthUsers),
+                GLOBAL: calculateTrend(currCompMap.GLOBAL, prevCompMap.GLOBAL),
+                FEDERAL: calculateTrend(currCompMap.FEDERAL, prevCompMap.FEDERAL),
+                TAKAFUL: calculateTrend(currCompMap.TAKAFUL, prevCompMap.TAKAFUL),
+            };
+
             return {
                 success: true,
                 data: {
                     totalReceipts,
                     totalUsers,
                     companyCounts,
+                    totalRevenue,
                     revenueChartData,
                     recentReceipts: serializedRecentReceipts,
+                    trends, // Return calculated trends
                 },
             };
         } catch (error) {

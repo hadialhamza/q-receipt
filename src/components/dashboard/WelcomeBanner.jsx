@@ -52,9 +52,9 @@ export default function WelcomeBanner({ userName = "User" }) {
             </span>
           </div>
 
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-slate-900 dark:text-white">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-slate-900 dark:text-white">
             <span suppressHydrationWarning>{greeting}</span>,{" "}
-            <span className="animate-text-gradient bg-linear-to-r from-blue-600 via-purple-600 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent bg-size-[200%_auto]">
+            <span className="text-2xl md:text-3xl lg:text-4xl animate-text-gradient bg-linear-to-r from-blue-600 via-purple-600 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent bg-size-[200%_auto] font-logo">
               {userName}
             </span>
           </h1>
@@ -80,25 +80,6 @@ export default function WelcomeBanner({ userName = "User" }) {
         {/* Middle: Flip Clock Component */}
         <FlipClock />
       </div>
-
-      {/* Text Animation Styles */}
-      <style jsx global>{`
-        @keyframes text-gradient {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-        .animate-text-gradient {
-          background-size: 200% auto;
-          animation: text-gradient 4s ease infinite;
-        }
-      `}</style>
     </div>
   );
 }

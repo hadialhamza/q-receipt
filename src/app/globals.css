@@ -162,33 +162,37 @@
   .perspective-1000 {
     perspective: 1000px;
   }
+
   .transform-style-3d {
     transform-style: preserve-3d;
   }
+
   .backface-hidden {
     backface-visibility: hidden;
   }
+
   .rotate-x-90 {
     transform: rotateX(90deg);
   }
+
   .origin-bottom {
     transform-origin: bottom;
   }
+
   .origin-top {
     transform-origin: top;
   }
+
   /* Primary Gradient - Blue to Indigo */
   .bg-gradient-primary {
     background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #6366f1 100%);
   }
 
   .bg-gradient-primary-soft {
-    background: linear-gradient(
-      135deg,
-      rgba(37, 99, 235, 0.1) 0%,
-      rgba(79, 70, 229, 0.1) 50%,
-      rgba(99, 102, 241, 0.1) 100%
-    );
+    background: linear-gradient(135deg,
+        rgba(37, 99, 235, 0.1) 0%,
+        rgba(79, 70, 229, 0.1) 50%,
+        rgba(99, 102, 241, 0.1) 100%);
   }
 
   /* Secondary Gradient - Blue to Purple */
@@ -197,12 +201,10 @@
   }
 
   .bg-gradient-secondary-soft {
-    background: linear-gradient(
-      135deg,
-      rgba(37, 99, 235, 0.1) 0%,
-      rgba(124, 58, 237, 0.1) 50%,
-      rgba(139, 92, 246, 0.1) 100%
-    );
+    background: linear-gradient(135deg,
+        rgba(37, 99, 235, 0.1) 0%,
+        rgba(124, 58, 237, 0.1) 50%,
+        rgba(139, 92, 246, 0.1) 100%);
   }
 
   /* Accent Gradient - Indigo to Purple */
@@ -274,4 +276,21 @@
   }
 }
 
+@keyframes text-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
 
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@utility animate-text-gradient {
+  background-size: 200% auto;
+  animation: text-gradient 4s ease infinite;
+}
