@@ -8,7 +8,6 @@ export const metadata = {
 
 export default async function ReceiptsPage(props) {
   const searchParams = await props.searchParams;
-
   const search = searchParams?.search || "";
   const page = parseInt(searchParams?.page || "1", 10);
 

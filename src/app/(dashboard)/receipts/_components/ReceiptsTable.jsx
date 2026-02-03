@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition, useRef, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, Eye, Plus, Pencil, Trash2 } from "lucide-react";
+import { Search, Eye, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { deleteReceipt } from "@/app/actions/receipts/delete-receipt";
+import { getReceipts } from "@/app/actions/receipts/get-receipts";
 import { toast } from "sonner";
 
 export default function ReceiptsTable({
@@ -14,12 +15,13 @@ export default function ReceiptsTable({
   initialTotal,
   initialPage = 1,
 }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
+  const [receipts, setReceipts] = useState(initialReceipts);
+  const [total, setTotal] = useState(initialTotal);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(initialPage);
 
-  const initialSearch = searchParams.get("search") || "";
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const router = useRouter();
   const debounceTimer = useRef(null);
 
   // Extract client name from receivedFrom
@@ -32,39 +34,54 @@ export default function ReceiptsTable({
   };
 
   // Handle search with debounce
-  const handleSearchChange = useCallback(
-    (e) => {
-      const value = e.target.value;
-      setSearchTerm(value);
+  const handleSearchChange = useCallback((e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
 
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
 
-      debounceTimer.current = setTimeout(() => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (value) {
-          params.set("search", value);
-          params.set("page", "1");
+    debounceTimer.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        // Fetch new data based on search term (Server Action)
+        const result = await getReceipts({ search: value, page: 1, limit: 50 });
+        if (result.success) {
+          setReceipts(result.data);
+          setTotal(result.total);
+          setCurrentPage(1);
         } else {
-          params.delete("search");
-          params.delete("page");
+          toast.error("Failed to search receipts");
         }
+      } catch (error) {
+        console.error(error);
+        toast.error("Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    }, 500);
+  }, []);
 
-        startTransition(() => {
-          router.push(`/receipts?${params.toString()}`);
-        });
-      }, 500);
-    },
-    [router, searchParams],
-  );
-
-  const handlePageChange = (newPage) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", newPage.toString());
-    startTransition(() => {
-      router.push(`/receipts?${params.toString()}`);
-    });
+  const handlePageChange = async (newPage) => {
+    setLoading(true);
+    try {
+      const result = await getReceipts({
+        search: searchTerm,
+        page: newPage,
+        limit: 50,
+      });
+      if (result.success) {
+        setReceipts(result.data);
+        setTotal(result.total);
+        setCurrentPage(newPage);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } catch (error) {
+      toast.error("Failed to change page");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (id, receiptNo) => {
@@ -75,14 +92,14 @@ export default function ReceiptsTable({
     const result = await deleteReceipt(id);
     if (result.success) {
       toast.success("Receipt deleted successfully");
-      router.refresh();
+      // Refresh current view
+      handlePageChange(currentPage);
     } else {
       toast.error(result.error || "Failed to delete receipt");
     }
   };
 
-  const totalPages = Math.ceil(initialTotal / 50);
-  const currentPage = initialPage;
+  const totalPages = Math.ceil(total / 50);
 
   return (
     <div className="space-y-6">
@@ -116,12 +133,18 @@ export default function ReceiptsTable({
             value={searchTerm}
             onChange={handleSearchChange}
           />
+          {loading && (
+            <Loader2
+              className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground"
+              size={16}
+            />
+          )}
         </div>
       </div>
 
       {/* Table */}
       <div className="rounded-lg border bg-card overflow-hidden">
-        {initialReceipts.length === 0 ? (
+        {receipts.length === 0 ? (
           <div className="p-12 flex flex-col items-center justify-center text-center">
             <div className="bg-muted size-16 rounded-full flex items-center justify-center mb-4">
               <Search className="text-muted-foreground" size={32} />
@@ -146,7 +169,7 @@ export default function ReceiptsTable({
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {initialReceipts.map((receipt) => (
+                {receipts.map((receipt) => (
                   <tr
                     key={receipt._id}
                     className="hover:bg-muted/50 transition-colors"
@@ -173,7 +196,10 @@ export default function ReceiptsTable({
                           className="size-8"
                           asChild
                         >
-                          <Link href={`/pe/${receipt.shortCode}`} target="_blank">
+                          <Link
+                            href={`/pe/${receipt.shortCode}`}
+                            target="_blank"
+                          >
                             <Eye className="size-4" />
                           </Link>
                         </Button>
@@ -211,20 +237,20 @@ export default function ReceiptsTable({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages} ({initialTotal} total receipts)
+            Page {currentPage} of {totalPages} ({total} total receipts)
           </p>
           <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1 || isPending}
+              disabled={currentPage === 1 || loading}
             >
               Previous
             </Button>
             <Button
               variant="outline"
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages || isPending}
+              disabled={currentPage === totalPages || loading}
             >
               Next
             </Button>
