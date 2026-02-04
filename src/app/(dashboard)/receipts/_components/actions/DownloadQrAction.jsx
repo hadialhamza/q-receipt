@@ -39,10 +39,10 @@ export default function DownloadQrAction({ receiptNo, shortCode }) {
 
   return (
     <Button
-      variant="ghost"
-      size="sm"
+      variant="outline"
+      size="icon"
       onClick={handleDownload}
-      className="text-blue-600 hover:text-blue-700 h-8 w-8 p-0"
+      className="h-9 w-9 rounded-xl border-indigo-500/50 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10"
       title="Download QR Code"
     >
       <QrCode className="size-4" />

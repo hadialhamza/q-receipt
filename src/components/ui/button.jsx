@@ -1,25 +1,26 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive group relative overflow-hidden active:scale-95",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive group/button relative overflow-hidden active:scale-95 after:content-[''] after:absolute after:inset-0 after:bg-linear-to-r after:from-white/0 after:via-white/20 after:to-white/0 after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-500 after:pointer-events-none",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-md hover:shadow-lg hover:bg-primary/90",
+        default:
+          "bg-primary text-primary-foreground shadow-md hover:shadow-lg hover:bg-primary/90 before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[2px] before:w-full before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
         destructive:
           "bg-destructive text-white shadow-sm hover:bg-destructive/90 hover:shadow-md",
         outline:
           "border-2 border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-accent transform hover:-translate-y-0.5",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm",
-        ghost:
-          "hover:bg-accent hover:text-accent-foreground",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        premium: "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg hover:shadow-blue-500/25 border-0",
+        premium:
+          "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg hover:shadow-blue-500/25 border-0 before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[2px] before:w-full before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
       },
       size: {
         default: "h-10 px-4 py-2 has-[>svg]:px-3",
@@ -36,8 +37,8 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
 function Button({
   className,
@@ -47,46 +48,19 @@ function Button({
   children,
   ...props
 }) {
-  const Comp = asChild ? Slot : "button"
-
-  // If using Slot (asChild), we can't safely inject inner styling divs.
-  // We strictly rely on the classes.
-  if (asChild) {
-    return (
-      <Comp
-        data-slot="button"
-        data-variant={variant}
-        data-size={size}
-        className={cn(buttonVariants({ variant, size, className }))}
-        {...props}
-      >
-        {children}
-      </Comp>
-    );
-  }
+  const Comp = asChild ? Slot : "button";
 
   return (
-    <button
+    <Comp
       data-slot="button"
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     >
-      {/* 1. Gradient Swipe Effect (Visible on Hover) */}
-      <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-      {/* 2. Content Wrapper (Ensure text/icon stays above effects) */}
-      <span className="relative z-10 flex items-center gap-2 [&_svg]:transition-transform [&_svg]:duration-300 group-hover:[&_svg]:translate-x-0.5">
-        {children}
-      </span>
-
-      {/* 3. Optional: Subtle bottom highlight/reflection like sidebar indicator if desired */}
-      {(variant === 'default' || variant === 'premium') && (
-        <div className="absolute bottom-0 left-0 h-[2px] w-full bg-linear-to-r from-transparent via-white/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      )}
-    </button>
+      {children}
+    </Comp>
   );
 }
 
-export { Button, buttonVariants }
+export { Button, buttonVariants };

@@ -53,11 +53,11 @@ export default function DownloadPdfAction({ data, shortCode }) {
 
   return (
     <Button
-      variant="ghost"
-      size="sm"
+      variant="outline"
+      size="icon"
       onClick={handleDownload}
       disabled={loading}
-      className="text-orange-600 hover:text-orange-700 h-8 w-8 p-0"
+      className="h-9 w-9 rounded-xl border-rose-500/50 text-rose-600 dark:text-rose-400 hover:bg-rose-500/10"
       title="Download PDF"
     >
       {loading ? (
