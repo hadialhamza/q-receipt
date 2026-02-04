@@ -171,8 +171,8 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
   return (
     <>
       {isPending && <SavingLoader />}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-7 space-y-6">
           <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
             <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b pb-4">
               <div className="flex items-center gap-3">
@@ -592,7 +592,7 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
             </CardContent>
           </Card>
         </div>
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-5">
           <PdfUpload onDataExtracted={handleAutoFill} />
         </div>
       </div>

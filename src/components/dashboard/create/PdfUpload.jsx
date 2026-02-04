@@ -97,8 +97,9 @@ export function PdfUpload({ onDataExtracted }) {
     <>
       {loading && <ScanningLoader />}
       <Card
-        className={`border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden sticky top-24 transition-all duration-300 ${previewImage ? "p-0" : "p-6"
-          }`}
+        className={`border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden sticky top-24 transition-all duration-300 ${
+          previewImage ? "p-0" : "p-6"
+        }`}
       >
         {/* --- STATE 1: PREVIEW MODE (With Glass Magnifier) --- */}
         {previewImage ? (
@@ -121,7 +122,7 @@ export function PdfUpload({ onDataExtracted }) {
             </div>
 
             {/* 🔍 MAGNIFIER AREA */}
-            <div className="flex-1 bg-gray-100 overflow-auto flex items-center justify-center p-4">
+            <div className="flex-1 bg-gray-100 overflow-auto flex items-start justify-center">
               <div className="shadow-lg w-full max-w-full bg-white">
                 <GlassMagnifier
                   imageSrc={previewImage}
