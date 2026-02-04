@@ -5,7 +5,6 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  Loader2,
   Save,
   ShieldCheck,
   AlertTriangle,
@@ -94,7 +93,6 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
     },
   });
 
-  /* Fix: Use useWatch for subscriptions to avoid React Compiler issues with watch() */
   const [premium, vat, stamp, companyType] = useWatch({
     control,
     name: ["premium", "vat", "stamp", "companyType"],
@@ -172,11 +170,11 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
     <>
       {isPending && <SavingLoader />}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-7">
           <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
-            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b pb-4">
+            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-100/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                <div className="rounded-lg bg-blue-100/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
                   <FileText className="size-5" />
                 </div>
                 <div>
@@ -189,7 +187,7 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                 {/* Company Selector Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -470,7 +468,7 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
                 </div>
 
                 {/* Financial */}
-                <div className="pt-8 mt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="pt-6">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="p-2 rounded-lg bg-emerald-100/50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
                       <Banknote className="size-5" />
@@ -569,9 +567,6 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
                     </div>
                   </div>
                 </div>
-
-                {/* Spacer ensures form content isn't hidden behind the floating button */}
-                <div className="pb-8" />
 
                 {/* Floating Submit Button - Sticky Position */}
                 <div className="sticky bottom-6 z-50 flex justify-center pointer-events-none">
