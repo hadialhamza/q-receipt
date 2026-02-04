@@ -11,7 +11,14 @@ import {
   Pencil,
   Trash2,
   ReceiptText,
+  Hash,
+  Building2,
+  User,
+  Calendar,
+  Banknote,
+  Settings2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { deleteReceipt } from "@/app/actions/receipts/delete-receipt";
@@ -192,20 +199,41 @@ export default function ReceiptsTable({
             <table className="w-full text-left text-sm border-separate border-spacing-0">
               <thead className="hidden md:table-header-group bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
                 <tr>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-[10px]">
-                    Receipt Details
+                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-xs">
+                    <div className="flex items-center gap-2">
+                      <Hash className="size-3.5 text-blue-500" />
+                      Receipt Details
+                    </div>
                   </th>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-[10px] w-[35%]">
-                    Client / Business Info
+                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-xs">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="size-3.5 text-purple-500" />
+                      Company
+                    </div>
                   </th>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-[10px]">
-                    Created Date
+                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-xs w-[30%]">
+                    <div className="flex items-center gap-2">
+                      <User className="size-3.5 text-violet-500" />
+                      Client Info
+                    </div>
                   </th>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-[10px] text-right">
-                    Total Amount
+                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-xs">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="size-3.5 text-orange-500" />
+                      Created Date
+                    </div>
                   </th>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-[10px] text-right">
-                    Management
+                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-xs text-right">
+                    <div className="flex items-center gap-2 justify-end">
+                      <Banknote className="size-3.5 text-emerald-500" />
+                      Total Amount
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-xs text-right">
+                    <div className="flex items-center gap-2 justify-end">
+                      <Settings2 className="size-3.5 text-slate-500" />
+                      Management
+                    </div>
                   </th>
                 </tr>
               </thead>
@@ -220,11 +248,38 @@ export default function ReceiptsTable({
                       className="px-6 py-4 md:py-5 flex justify-between md:table-cell items-center before:content-[attr(data-label)] before:md:content-none before:font-bold before:text-slate-400 before:uppercase before:text-[10px]"
                     >
                       <div className="flex flex-col md:items-start items-end">
-                        <span className="font-mono font-bold text-blue-600 dark:text-blue-400 text-base">
-                          {receipt.receiptNo}
-                        </span>
-                        <span className="text-[10px] font-medium text-slate-400 uppercase mt-0.5 tracking-tight">
+                        <div className="flex items-center gap-2">
+                          <Hash className="size-4 text-blue-500 hidden md:block" />
+                          <span className="font-mono font-bold text-blue-600 dark:text-blue-400 text-base">
+                            {receipt.receiptNo}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-medium text-slate-400 uppercase mt-0.5 tracking-tight md:ml-6">
                           #{receipt.shortCode}
+                        </span>
+                      </div>
+                    </td>
+                    <td
+                      data-label="Company"
+                      className="px-6 py-4 md:py-5 flex justify-between md:table-cell items-center before:content-[attr(data-label)] before:md:content-none before:font-bold before:text-slate-400 before:uppercase before:text-[10px]"
+                    >
+                      <div className="flex md:justify-start justify-end">
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider",
+                            receipt.companyType === "GLOBAL"
+                              ? "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+                              : receipt.companyType === "FEDERAL"
+                                ? "bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+                                : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400",
+                          )}
+                        >
+                          <Building2 className="size-2.5" />
+                          {receipt.companyType === "GLOBAL"
+                            ? "Global Insurance"
+                            : receipt.companyType === "FEDERAL"
+                              ? "Federal Insurance"
+                              : "Takaful Insurance"}
                         </span>
                       </div>
                     </td>
@@ -232,7 +287,8 @@ export default function ReceiptsTable({
                       data-label="Client Info"
                       className="px-6 py-4 md:py-5 flex justify-between md:table-cell items-center before:content-[attr(data-label)] before:md:content-none before:font-bold before:text-slate-400 before:uppercase before:text-[10px]"
                     >
-                      <div className="md:w-full text-right md:text-left">
+                      <div className="md:w-full text-right md:text-left flex md:items-center justify-end md:justify-start gap-2">
+                        <User className="size-4 text-violet-500 hidden md:block shrink-0" />
                         <ClientNameCell
                           rawText={receipt.receivedFrom}
                           storedName={receipt.clientName}
@@ -244,24 +300,29 @@ export default function ReceiptsTable({
                       className="px-6 py-4 md:py-5 flex justify-between md:table-cell items-center before:content-[attr(data-label)] before:md:content-none before:font-bold before:text-slate-400 before:uppercase before:text-[10px] whitespace-nowrap"
                     >
                       <div className="flex flex-col md:items-start items-end">
-                        <span className="font-medium">
+                        <span className="font-medium flex items-center gap-1.5 translate-y-[-1px]">
+                          <Calendar className="size-3.5 text-orange-500 hidden md:block" />
                           {receipt.createdAt
                             ? new Date(receipt.createdAt).toLocaleDateString(
-                                "en-GB",
-                                {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric",
-                                },
-                              )
+                              "en-GB",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )
                             : "N/A"}
                         </span>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[10px] text-slate-400 md:ml-5">
                           {receipt.createdAt
                             ? new Date(receipt.createdAt).toLocaleTimeString(
-                                "en-GB",
-                                { hour: "2-digit", minute: "2-digit" },
-                              )
+                              "en-US",
+                              {
+                                hour: "numeric",
+                                minute: "2-digit",
+                                hour12: true,
+                              },
+                            )
                             : ""}
                         </span>
                       </div>
