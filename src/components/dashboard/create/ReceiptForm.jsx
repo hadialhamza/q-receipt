@@ -344,7 +344,7 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
                       {...register("receivedFrom")}
                       rows={4}
                       className="resize-none pl-9 pr-10"
-                      placeholder="e.g. Mr. Rahim, House #10, Road #5..."
+                      placeholder="e.g. Mr. John, House #10, Road #5..."
                     />
                     {renderIcon("receivedFrom")}
                   </div>
