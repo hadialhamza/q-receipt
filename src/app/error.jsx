@@ -14,10 +14,6 @@ export default function Error({ error, reset }) {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-background">
-      {/* Animated Background Elements - Reddish for Error */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-500/10 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-500/10 rounded-full blur-[120px] animate-pulse delay-1000" />
-
       {/* Content Container */}
       <div className="z-10 max-w-lg w-full text-center space-y-8 animate-in fade-in zoom-in duration-500">
         <div className="flex justify-center mb-4">
@@ -88,14 +84,6 @@ export default function Error({ error, reset }) {
             Back to Dashboard
           </Link>
         </div>
-      </div>
-
-      {/* Subtle Floating Decorative Icons */}
-      <div className="absolute top-1/3 right-10 opacity-10 animate-pulse delay-700">
-        <div className="size-24 border-2 border-red-500 rounded-full" />
-      </div>
-      <div className="absolute bottom-1/3 left-10 opacity-10 animate-pulse delay-500">
-        <div className="size-20 border-2 border-orange-500 rotate-12" />
       </div>
 
       <footer className="absolute bottom-6 text-sm text-muted-foreground opacity-50">

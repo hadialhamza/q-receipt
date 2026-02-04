@@ -17,7 +17,7 @@ export function ThemeToggle({ className, ...props }) {
     <Button
       variant="ghost"
       size="icon"
-      className={`rounded-full relative overflow-hidden transition-all duration-300 hover:bg-accent ${className}`}
+      className={`rounded-full relative overflow-hidden transition-transform duration-300 hover:bg-accent ${className}`}
       onClick={toggleTheme}
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       {...props}

@@ -132,33 +132,6 @@
     font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   }
 
-  /* Control Default Autofill Colors */
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--foreground);
-    -webkit-box-shadow: 0 0 0px 1000px var(--background) inset;
-    transition: background-color 5000s ease-in-out 0s;
-  }
-
-  /* Remove Number Spin Buttons */
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  input[type="number"] {
-    appearance: textfield;
-    -moz-appearance: textfield;
-  }
-
-  /* For dark mode specifically if needed to match custom backgrounds */
-  .dark input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px oklch(0.25 0.02 250) inset !important;
-    /* Matches gray-800 roughly */
-  }
-
   h1,
   h2,
   h3,
@@ -168,16 +141,37 @@
     font-family: var(--font-montserrat), sans-serif;
   }
 
+  /* Control Default Autofill Colors */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--foreground);
+    -webkit-box-shadow: 0 0 0px 1000px var(--background) inset;
+  }
+
+  .dark input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px oklch(0.13 0.043 265.1) inset !important;
+  }
+
+  /* Remove Number Spin Buttons */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
   /* --- Modern Custom Scrollbar --- */
   ::-webkit-scrollbar {
     width: 8px;
     height: 6px;
   }
-
   ::-webkit-scrollbar-track {
     background: transparent;
   }
-
   ::-webkit-scrollbar-thumb {
     background: oklch(0.65 0.01 250);
     /* Light Gray */
@@ -186,63 +180,30 @@
     background-clip: content-box;
     transition: background-color 0.2s;
   }
-
   ::-webkit-scrollbar-thumb {
     background-color: oklch(0.85 0.01 250);
     border-radius: 10px;
   }
-
   ::-webkit-scrollbar-thumb:hover {
     background-color: oklch(0.65 0.01 250);
   }
-
   .dark ::-webkit-scrollbar-thumb {
     background-color: oklch(0.3 0.02 250);
   }
-
   .dark ::-webkit-scrollbar-thumb:hover {
     background-color: oklch(0.5 0.02 250);
   }
 }
 
-/* Custom Dashboard Gradients - Blue → Indigo → Purple */
+/* Dashboard Gradients */
 @layer utilities {
   .perspective-1000 {
     perspective: 1000px;
   }
 
-  .transform-style-3d {
-    transform-style: preserve-3d;
-  }
-
-  .backface-hidden {
-    backface-visibility: hidden;
-  }
-
-  .rotate-x-90 {
-    transform: rotateX(90deg);
-  }
-
-  .origin-bottom {
-    transform-origin: bottom;
-  }
-
-  .origin-top {
-    transform-origin: top;
-  }
-
   /* Primary Gradient - Blue to Indigo */
   .bg-gradient-primary {
     background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #6366f1 100%);
-  }
-
-  .bg-gradient-primary-soft {
-    background: linear-gradient(
-      135deg,
-      rgba(37, 99, 235, 0.1) 0%,
-      rgba(79, 70, 229, 0.1) 50%,
-      rgba(99, 102, 241, 0.1) 100%
-    );
   }
 
   /* Secondary Gradient - Blue to Purple */
@@ -259,16 +220,6 @@
     );
   }
 
-  /* Accent Gradient - Indigo to Purple */
-  .bg-gradient-accent {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  }
-
-  /* Chart Gradient - Blue to Cyan */
-  .bg-gradient-chart {
-    background: linear-gradient(135deg, #2563eb 0%, #0891b2 50%, #06b6d4 100%);
-  }
-
   /* Text Gradients */
   .text-gradient-primary {
     @apply bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent;
@@ -276,16 +227,6 @@
 
   .text-gradient-secondary {
     @apply bg-linear-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent;
-  }
-
-  /* Hover Gradients */
-  .hover-gradient-primary {
-    @apply hover:bg-linear-to-r hover:from-blue-600 hover:via-indigo-600 hover:to-indigo-700 transition-all duration-300;
-  }
-
-  /* Border Gradients */
-  .border-gradient-primary {
-    border-image: linear-gradient(135deg, #2563eb, #4f46e5, #6366f1) 1;
   }
 
   /* Dark Mode Gradients */
