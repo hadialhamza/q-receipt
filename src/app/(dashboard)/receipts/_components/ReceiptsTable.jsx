@@ -17,10 +17,12 @@ import {
   Calendar,
   Banknote,
   Settings2,
+  Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CustomStatsCard } from "@/components/dashboard/CustomStatsCard";
 import { deleteReceipt } from "@/app/actions/receipts/delete-receipt";
 import { getReceipts } from "@/app/actions/receipts/get-receipts";
 import { toast } from "sonner";
@@ -113,35 +115,81 @@ export default function ReceiptsTable({
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-500">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-              <ReceiptText className="size-6" />
+      {/* Premium Header Wrapper (WelcomeBanner Aesthetic) */}
+      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 lg:p-7 shadow-sm">
+        {/* Background Decorator (Optional, keeping it clean for consistency) */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-6">
+          {/* Left Side: Icon & Title Area */}
+          <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+            {/* Logo/Icon Section */}
+            <div className="relative shrink-0">
+              <div className="h-20 w-20 rounded-2xl bg-linear-to-br from-blue-500/10 to-indigo-500/10 flex items-center justify-center border border-blue-200/50 dark:border-blue-800/50 shadow-inner">
+                <ReceiptText className="size-10 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-linear-to-r from-blue-500 to-indigo-500 rounded-full border-4 border-white dark:border-slate-900 shadow-lg flex items-center justify-center">
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+              </div>
             </div>
-            <h1 className="font-heading text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              All Receipts
-            </h1>
+
+            {/* Text Content */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-center md:justify-start gap-2 text-blue-600 dark:text-blue-400 mb-1">
+                <span className="text-xs font-bold tracking-[0.2em] uppercase text-slate-500 dark:text-slate-400">
+                  Management Portal
+                </span>
+              </div>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                All{" "}
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-purple-600 to-indigo-600">
+                  Receipts
+                </span>
+              </h1>
+              <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 max-w-[400px] font-medium">
+                Manage and track all your issued insurance receipts in one
+                place.
+              </p>
+            </div>
           </div>
-          <p className="text-muted-foreground ml-16">
-            Manage and track all your issued insurance receipts in one place.
-          </p>
+
+          {/* Right Side: Compact Stats & Action Button */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
+            {/* Compact Stats Card */}
+            <div className="relative overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4 min-w-[180px] shadow-xs group">
+              <div className="relative z-10">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Total Records
+                </p>
+                <div className="flex items-baseline gap-1 mt-1">
+                  <h2 className="text-3xl font-black text-slate-900 dark:text-white">
+                    {total.toLocaleString()}
+                  </h2>
+                  <span className="text-[10px] font-bold text-blue-500 uppercase tracking-tighter">
+                    Recs
+                  </span>
+                </div>
+              </div>
+              <Receipt className="absolute -bottom-2 -right-2 size-14 text-slate-900/[0.03] dark:text-white/[0.03] group-hover:scale-110 transition-transform duration-500" />
+              <div className="absolute top-0 right-0 w-1 h-full bg-blue-500" />
+            </div>
+
+            <Button
+              asChild
+              size="lg"
+              className="h-14 px-8 bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-500/20 rounded-xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto"
+            >
+              <Link href="/create">
+                <Plus className="mr-2 size-5" />
+                New Receipt
+              </Link>
+            </Button>
+          </div>
         </div>
-        <Button
-          asChild
-          size="lg"
-          className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 md:self-end"
-        >
-          <Link href="/create">
-            <Plus className="mr-2 size-5" />
-            New Receipt
-          </Link>
-        </Button>
       </div>
 
-      {/* Search & Stats Bar */}
-      <div className="grid gap-4 md:grid-cols-[1fr,auto]">
+      {/* Search Bar */}
+      <div className="w-full">
         <div className="relative group">
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-blue-500 transition-colors"
@@ -160,13 +208,6 @@ export default function ReceiptsTable({
               size={18}
             />
           )}
-        </div>
-
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl border border-slate-200/50 dark:border-slate-700/50 text-sm font-medium text-slate-600 dark:text-slate-400">
-          <span className="text-blue-600 dark:text-blue-400 font-bold">
-            {total}
-          </span>
-          Total Records
         </div>
       </div>
 
@@ -241,7 +282,7 @@ export default function ReceiptsTable({
                 {receipts.map((receipt) => (
                   <tr
                     key={receipt._id}
-                    className="flex flex-col md:table-row hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors border-b md:border-b-0 border-slate-200 dark:border-slate-800 last:border-0"
+                    className="flex flex-col md:table-row hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors border-b border-slate-200 dark:border-slate-800 odd:bg-slate-100/50 dark:odd:bg-white/5 last:border-0"
                   >
                     <td
                       data-label="Receipt"
