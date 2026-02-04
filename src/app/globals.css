@@ -141,6 +141,17 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
+  /* Remove Number Spin Buttons */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
   /* For dark mode specifically if needed to match custom backgrounds */
   .dark input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0px 1000px oklch(0.25 0.02 250) inset !important;
@@ -189,10 +200,12 @@
   }
 
   .bg-gradient-primary-soft {
-    background: linear-gradient(135deg,
-        rgba(37, 99, 235, 0.1) 0%,
-        rgba(79, 70, 229, 0.1) 50%,
-        rgba(99, 102, 241, 0.1) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.1) 0%,
+      rgba(79, 70, 229, 0.1) 50%,
+      rgba(99, 102, 241, 0.1) 100%
+    );
   }
 
   /* Secondary Gradient - Blue to Purple */
@@ -201,10 +214,12 @@
   }
 
   .bg-gradient-secondary-soft {
-    background: linear-gradient(135deg,
-        rgba(37, 99, 235, 0.1) 0%,
-        rgba(124, 58, 237, 0.1) 50%,
-        rgba(139, 92, 246, 0.1) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.1) 0%,
+      rgba(124, 58, 237, 0.1) 50%,
+      rgba(139, 92, 246, 0.1) 100%
+    );
   }
 
   /* Accent Gradient - Indigo to Purple */
