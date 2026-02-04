@@ -22,7 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CustomStatsCard } from "@/components/dashboard/CustomStatsCard";
+import PageHeader from "@/components/dashboard/PageHeader";
 import { deleteReceipt } from "@/app/actions/receipts/delete-receipt";
 import { getReceipts } from "@/app/actions/receipts/get-receipts";
 import { toast } from "sonner";
@@ -115,78 +115,29 @@ export default function ReceiptsTable({
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-500">
-      {/* Premium Header Wrapper (WelcomeBanner Aesthetic) */}
-      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 lg:p-7 shadow-sm">
-        {/* Background Decorator (Optional, keeping it clean for consistency) */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-6">
-          {/* Left Side: Icon & Title Area */}
-          <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-            {/* Logo/Icon Section */}
-            <div className="relative shrink-0">
-              <div className="h-20 w-20 rounded-2xl bg-linear-to-br from-blue-500/10 to-indigo-500/10 flex items-center justify-center border border-blue-200/50 dark:border-blue-800/50 shadow-inner">
-                <ReceiptText className="size-10 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-linear-to-r from-blue-500 to-indigo-500 rounded-full border-4 border-white dark:border-slate-900 shadow-lg flex items-center justify-center">
-                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-              </div>
-            </div>
-
-            {/* Text Content */}
-            <div className="space-y-1">
-              <div className="flex items-center justify-center md:justify-start gap-2 text-blue-600 dark:text-blue-400 mb-1">
-                <span className="text-xs font-bold tracking-[0.2em] uppercase text-slate-500 dark:text-slate-400">
-                  Management Portal
-                </span>
-              </div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-                All{" "}
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-purple-600 to-indigo-600">
-                  Receipts
-                </span>
-              </h1>
-              <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 max-w-[400px] font-medium">
-                Manage and track all your issued insurance receipts in one
-                place.
-              </p>
-            </div>
-          </div>
-
-          {/* Right Side: Compact Stats & Action Button */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
-            {/* Compact Stats Card */}
-            <div className="relative overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4 min-w-[180px] shadow-xs group">
-              <div className="relative z-10">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Total Records
-                </p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <h2 className="text-3xl font-black text-slate-900 dark:text-white">
-                    {total.toLocaleString()}
-                  </h2>
-                  <span className="text-[10px] font-bold text-blue-500 uppercase tracking-tighter">
-                    Recs
-                  </span>
-                </div>
-              </div>
-              <Receipt className="absolute -bottom-2 -right-2 size-14 text-slate-900/[0.03] dark:text-white/[0.03] group-hover:scale-110 transition-transform duration-500" />
-              <div className="absolute top-0 right-0 w-1 h-full bg-blue-500" />
-            </div>
-
-            <Button
-              asChild
-              size="lg"
-              className="h-14 px-8 bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-500/20 rounded-xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto"
-            >
-              <Link href="/create">
-                <Plus className="mr-2 size-5" />
-                New Receipt
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="All"
+        highlightWord="Receipts"
+        description="Manage and track all your issued insurance receipts in one place."
+        icon={ReceiptText}
+        stats={{
+          label: "Total Records",
+          value: total.toLocaleString(),
+          unit: "Recs",
+          Icon: Receipt,
+        }}
+      >
+        <Button
+          asChild
+          size="lg"
+          className="h-14 px-8 bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-500/20 rounded-xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto"
+        >
+          <Link href="/create">
+            <Plus className="mr-2 size-5" />
+            New Receipt
+          </Link>
+        </Button>
+      </PageHeader>
 
       {/* Search Bar */}
       <div className="w-full">
@@ -221,8 +172,8 @@ export default function ReceiptsTable({
             <h3 className="text-xl font-bold text-slate-900 dark:text-white">
               No matching receipts
             </h3>
-            <p className="text-slate-500 mt-2 max-w-[280px]">
-              We couldn't find any receipts matching your search criteria.
+            <p className="text-slate-500 mt-2 max-w-70">
+              We couldn&apos;t find any receipts matching your search criteria.
             </p>
             <Button
               variant="outline"
@@ -341,29 +292,29 @@ export default function ReceiptsTable({
                       className="px-6 py-4 md:py-5 flex justify-between md:table-cell items-center before:content-[attr(data-label)] before:md:content-none before:font-bold before:text-slate-400 before:uppercase before:text-[10px] whitespace-nowrap"
                     >
                       <div className="flex flex-col md:items-start items-end">
-                        <span className="font-medium flex items-center gap-1.5 translate-y-[-1px]">
+                        <span className="font-medium flex items-center gap-1.5 -translate-y-px">
                           <Calendar className="size-3.5 text-orange-500 hidden md:block" />
                           {receipt.createdAt
                             ? new Date(receipt.createdAt).toLocaleDateString(
-                              "en-GB",
-                              {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              },
-                            )
+                                "en-GB",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )
                             : "N/A"}
                         </span>
                         <span className="text-[10px] text-slate-400 md:ml-5">
                           {receipt.createdAt
                             ? new Date(receipt.createdAt).toLocaleTimeString(
-                              "en-US",
-                              {
-                                hour: "numeric",
-                                minute: "2-digit",
-                                hour12: true,
-                              },
-                            )
+                                "en-US",
+                                {
+                                  hour: "numeric",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                },
+                              )
                             : ""}
                         </span>
                       </div>
