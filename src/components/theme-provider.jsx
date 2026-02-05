@@ -1,23 +1,30 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import Cookies from "js-cookie";
 
 const ThemeContext = createContext({
   theme: "system",
   setTheme: () => null,
 });
 
-export function ThemeProvider({
-  children,
-  initialTheme = "system",
-  storageKey = "theme",
-}) {
-  const [theme, setThemeState] = useState(initialTheme);
+export function ThemeProvider({ children }) {
+  const [theme, setThemeState] = useState("system");
 
+  // Initial load from localStorage
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    // Only update state if stored theme exists and is different from default
+    if (storedTheme && storedTheme !== "system") {
+      // Wrap in setTimeout to avoid synchronous state update warning
+      setTimeout(() => {
+        setThemeState(storedTheme);
+      }, 0);
+    }
+  }, []);
+
+  // Apply theme to document
   useEffect(() => {
     const root = window.document.documentElement;
-
     root.classList.remove("light", "dark");
 
     if (theme === "system") {
@@ -33,9 +40,9 @@ export function ThemeProvider({
     root.classList.add(theme);
   }, [theme]);
 
-  const setTheme = (theme) => {
-    setThemeState(theme);
-    Cookies.set(storageKey, theme, { expires: 365 });
+  const setTheme = (newTheme) => {
+    setThemeState(newTheme);
+    localStorage.setItem("theme", newTheme);
   };
 
   const value = {

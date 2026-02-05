@@ -4,8 +4,6 @@ import { useState } from "react";
 import { FileDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { pdf } from "@react-pdf/renderer";
-import { ReceiptDocument } from "@/components/receipts/pdf/ReceiptDocument";
 import QRCode from "qrcode";
 
 export default function DownloadPdfAction({ data, shortCode }) {
@@ -14,6 +12,11 @@ export default function DownloadPdfAction({ data, shortCode }) {
   const handleDownload = async () => {
     setLoading(true);
     try {
+      // Dynamically import heavy libraries
+      const { pdf } = await import("@react-pdf/renderer");
+      const { ReceiptDocument } =
+        await import("@/components/receipts/pdf/ReceiptDocument");
+
       // 1. Generate QR Code for the PDF
       const origin =
         typeof window !== "undefined" ? window.location.origin : "";

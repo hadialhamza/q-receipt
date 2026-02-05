@@ -1,8 +1,17 @@
-"use client";
-
-import LoginForm from "./LoginForm";
+import dynamic from "next/dynamic";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Logo from "@/components/Logo";
+
+const LoginForm = dynamic(() => import("./LoginForm"), {
+  loading: () => (
+    <div className="w-full h-96 animate-pulse bg-gray-100 dark:bg-gray-800/50 rounded-3xl" />
+  ),
+});
+
+export const metadata = {
+  title: "Login | QReceipt",
+  description: "Secure login for QReceipt - Manage your financial documents.",
+};
 
 export default function LoginPage() {
   return (

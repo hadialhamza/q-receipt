@@ -1,13 +1,14 @@
 import { CustomStatsCard } from "@/components/dashboard/CustomStatsCard";
-import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { getDashboardStats } from "@/app/actions/dashboard-stats";
-
 import { getServerSession } from "next-auth";
 import { authConfig } from "@/lib/auth.config";
 import { Receipt, Users, Globe, Building2, ShieldCheck } from "lucide-react";
-import { CategoryDistribution } from "@/components/analytics/CategoryDistribution";
-import { WeeklyActivity } from "@/components/dashboard/WeeklyActivity";
 import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
+import {
+  WeeklyActivity,
+  CategoryDistribution,
+  RevenueChart,
+} from "@/components/dashboard/DashboardCharts";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authConfig);

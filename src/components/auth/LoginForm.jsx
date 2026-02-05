@@ -89,7 +89,7 @@ export default function LoginForm() {
                 id="email"
                 type="email"
                 placeholder="you@example.com"
-                className="w-full pl-12 pr-4 h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                className="w-full pl-12 pr-4 h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition font-medium"
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
@@ -188,7 +188,7 @@ export default function LoginForm() {
               </div>
 
               {/* Shine effect with Tailwind */}
-              <div className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] -skew-x-[30deg] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out pointer-events-none" />
+              <div className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] -skew-x-30 group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out pointer-events-none" />
             </Button>
           </div>
         </form>

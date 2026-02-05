@@ -1,13 +1,5 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authConfig } from "@/lib/auth.config";
+import Loading from "./loading";
 
-export default async function Home() {
-  const session = await getServerSession(authConfig);
-
-  if (session) {
-    redirect("/dashboard");
-  } else {
-    redirect("/login");
-  }
+export default function Home() {
+  return <Loading />;
 }
