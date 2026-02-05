@@ -23,7 +23,7 @@ export function CategoryDistribution({ data = [] }) {
   return (
     <Card className="col-span-3 border-none shadow-sm hover:shadow-md transition-shadow">
       <CardHeader>
-        <CardTitle>Sales by Category</CardTitle>
+        <CardTitle>Creates by Category</CardTitle>
         <CardDescription>
           Distribution of sales across top categories
         </CardDescription>
