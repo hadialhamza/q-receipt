@@ -38,6 +38,14 @@ function mergeResults(regexData, aiData) {
     }
   });
 
+  // Sanitize modeOfPayment — strip "Dated ..." and trailing semicolons
+  if (merged.modeOfPayment) {
+    merged.modeOfPayment = merged.modeOfPayment
+      .replace(/\s+Dated\b.*/i, "")
+      .replace(/;\s*$/, "")
+      .trim();
+  }
+
   return merged;
 }
 
