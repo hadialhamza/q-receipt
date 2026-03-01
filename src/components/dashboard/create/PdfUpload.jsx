@@ -17,10 +17,52 @@ import { extractTextFromPdf, renderPdfToImage } from "@/lib/pdf-extractor";
 import { parseReceiptData } from "@/lib/parse-receipt";
 import { parseReceiptWithAI } from "@/app/actions/ai/groq-parser";
 import { verifyExtraction, validateExtraction } from "@/lib/verification";
+import { buildSumOf } from "@/lib/number-to-words";
 import { Button } from "@/components/ui/button";
 import { GlassMagnifier } from "@/components/ui/GlassMagnifier";
 import { Card } from "@/components/ui/card";
 import ScanningLoader from "@/app/(dashboard)/create/scanningLoader";
+
+/**
+ * Hybrid merge: pick best value per field from Regex and AI results
+ * AI preferred if non-empty, otherwise Regex fallback
+ */
+function mergeResults(regexData, aiData) {
+  const merged = { ...regexData };
+  if (!aiData) return merged;
+
+  Object.keys(aiData).forEach((key) => {
+    const aiVal = aiData[key];
+    if (aiVal && aiVal !== "null" && String(aiVal).trim() !== "") {
+      merged[key] = String(aiVal).trim();
+    }
+  });
+
+  return merged;
+}
+
+/**
+ * Post-processing: enforce business rules on merged data
+ */
+function postProcess(data) {
+  // Business Rule: chequeDate = date
+  if (data.date && (!data.chequeDate || data.chequeDate === "")) {
+    data.chequeDate = data.date;
+  }
+
+  // Business Rule: sumOf from calculated total
+  if (data.total) {
+    const totalNum = parseFloat(String(data.total).replace(/,/g, "")) || 0;
+    if (totalNum > 0) {
+      data.sumOf = buildSumOf(totalNum);
+    }
+  }
+
+  // Static field
+  data.issuingOffice = "Rangpur Branch";
+
+  return data;
+}
 
 export function PdfUpload({ onDataExtracted }) {
   const [loading, setLoading] = useState(false);
@@ -46,7 +88,7 @@ export function PdfUpload({ onDataExtracted }) {
     try {
       toast.info("Processing Receipt...");
 
-      // 1. Extract Raw PDF Text
+      // 1. Extract Raw PDF Text + Image Preview
       const [text, imageUrl] = await Promise.all([
         extractTextFromPdf(file),
         renderPdfToImage(file),
@@ -56,40 +98,50 @@ export function PdfUpload({ onDataExtracted }) {
         setPreviewImage(imageUrl);
       }
 
-      // LEVEL 1: REGEX PARSING (Offline / Fast)
-      const regexData = parseReceiptData(text);
+      // 2. Run Regex and AI in Parallel
+      const [regexResult, aiResult] = await Promise.allSettled([
+        Promise.resolve(parseReceiptData(text)),
+        parseReceiptWithAI(text),
+      ]);
 
-      // LEVEL 2: VALIDATION GATE
-      const { isValid, missingFields } = validateExtraction(regexData);
+      const regexData =
+        regexResult.status === "fulfilled" ? regexResult.value : {};
+      const aiData =
+        aiResult.status === "fulfilled" && aiResult.value?.success
+          ? aiResult.value.data
+          : null;
 
-      if (isValid) {
-        // SUCCESS: Regex found everything (including clientName via regex)
-        toast.success("Data extracted successfully! ⚡");
-        const verificationStatus = verifyExtraction(text, regexData);
-        onDataExtracted(regexData, verificationStatus);
+      // 3. Determine source label
+      let sourceLabel = "Regex";
+      if (aiData) sourceLabel = "AI Enhanced";
 
-        return;
+      // 4. Hybrid Merge — best of both
+      const merged = mergeResults(regexData, aiData);
+
+      // 5. Post-processing — business rules
+      const finalData = postProcess(merged);
+
+      // 6. Verification + Confidence Score
+      const verification = verifyExtraction(text, finalData);
+      const accuracy = verification.overallConfidence || 0;
+      const financialOk = verification.financialValid;
+
+      // 7. Accuracy Toast
+      if (accuracy >= 80) {
+        toast.success(
+          `✅ ${accuracy}% Accuracy — ${sourceLabel}${financialOk ? " • Financials Verified" : ""}`,
+        );
+      } else if (accuracy >= 50) {
+        toast.warning(
+          `⚠️ ${accuracy}% Accuracy — ${sourceLabel}. Please review fields.`,
+        );
+      } else {
+        toast.error(
+          `❌ ${accuracy}% Accuracy — Low confidence. Manual review needed.`,
+        );
       }
 
-      // LEVEL 3: AI BACKUP (Only if Validation Fails)
-      toast.warning(`Switching to AI... Missing: ${missingFields.join(", ")}`);
-
-      try {
-        const aiResult = await parseReceiptWithAI(text);
-
-        if (aiResult.success) {
-          toast.success("AI Enhanced Extraction Complete 🤖");
-
-          const verificationStatus = verifyExtraction(text, aiResult.data);
-          onDataExtracted(aiResult.data, verificationStatus);
-        } else {
-          toast.error("AI failed too. Using partial data.");
-          onDataExtracted(regexData, {});
-        }
-      } catch (aiError) {
-        toast.error("AI Error. Using partial data.");
-        onDataExtracted(regexData, {});
-      }
+      onDataExtracted(finalData, verification);
     } catch (error) {
       toast.error("Failed to process PDF.");
       setPreviewImage(null);

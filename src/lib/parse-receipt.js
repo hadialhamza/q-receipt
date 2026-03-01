@@ -1,17 +1,31 @@
 /**
- * Fallback Regex Parser
- * Used when AI fails or for offline processing
+ * Enhanced Regex Parser
+ * Extracts data from PDF text with smart pattern matching
  */
 
-function formatDateForInput(dateStr) {
-  if (!dateStr) return "";
-  const match = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-  if (match) return `${match[3]}-${match[2]}-${match[1]}`;
-  return dateStr;
+// Shared company detection utility
+export function detectCompany(text) {
+  const lower = text.toLowerCase();
+  if (
+    lower.includes("takaful") ||
+    lower.includes("www.takaful.com.bd") ||
+    lower.includes("islami insurance")
+  ) {
+    return "TAKAFUL";
+  }
+  if (lower.includes("federal") || lower.includes("www.federalinsubd.com")) {
+    return "FEDERAL";
+  }
+  return "GLOBAL";
+}
+
+// Remove all spaces from a string (for BIN, receiptNo, dates, issuedAgainst)
+function stripSpaces(str) {
+  return str ? str.replace(/\s+/g, "") : "";
 }
 
 export function parseReceiptData(text) {
-  // Normalize colons: Ensure "Field:Value" has spacing "Field : Value" for easier parsing
+  // Normalize colons for consistent extraction
   const cleanText = text.replace(/:\s*/g, " : ");
 
   const extract = (pattern) => {
@@ -19,18 +33,11 @@ export function parseReceiptData(text) {
     return match ? match[1].trim() : "";
   };
 
-  // Company Detection Logic
-  let companyType = "GLOBAL";
-  const lowerText = text.toLowerCase();
-  if (lowerText.includes("takaful") || lowerText.includes("www.takaful.com.bd")) {
-    companyType = "TAKAFUL";
-  } else if (lowerText.includes("federal") || lowerText.includes("www.federalinsubd.com")) {
-    companyType = "FEDERAL";
-  }
+  const companyType = detectCompany(text);
 
   const data = {
-    companyType, // Dynamic company type
-    issuingOffice: "Rangpur Branch", // Default static as requested
+    companyType,
+    issuingOffice: "Rangpur Branch",
     receiptNo: "",
     classOfInsurance: "",
     date: "",
@@ -45,73 +52,107 @@ export function parseReceiptData(text) {
     total: "",
     bin: "",
     stamp: "",
+    clientName: "",
   };
 
   try {
-    // 1. Basic Fields (Key : Value)
-    data.bin = extract(/BIN\s*:\s*([\d-]+)/i);
-    data.receiptNo = extract(/(?:Money Receipt No|Receipt No)\s*:\s*([A-Z0-9-]+)/i);
-    data.classOfInsurance = extract(/Class of Insurance\s*:\s*([^\n\r]+?)(?=\s+Date|Date\s*:|$)/i);
+    // 1. BIN — full number with dash, strip spaces
+    const binMatch = text.match(/BIN\s*:\s*([\d\s-]+)/i);
+    if (binMatch) {
+      data.bin = stripSpaces(binMatch[1]);
+    }
 
-    // 2. Dates (DD-MM-YYYY)
-    // Primary Date
-    const dateMatch = cleanText.match(/Date\s*:\s*(\d{2}-\d{2}-\d{4})/i);
-    if (dateMatch) data.date = dateMatch[1];
-
-    // Cheque Date
-    const chequeDateMatch = cleanText.match(/Dated\s*(\d{2}-\d{2}-\d{4})/i);
-    if (chequeDateMatch) data.chequeDate = chequeDateMatch[1];
-
-    // 3. Received From (Multi-line sandwich)
-    // Captures text between "Received with thanks from" and the next known keyword
-    const clientMatch = cleanText.match(
-      /Received with thanks from\s+([\s\S]+?)(?=\s+(?:The sum of|Mode of Payment|MUSHAK))/i
+    // 2. Receipt No — strip spaces
+    const receiptMatch = cleanText.match(
+      /(?:Money Receipt No|Receipt No)\s*:\s*([^\n\r]+?)(?=\s*$|\n)/im,
     );
-    if (clientMatch) {
-      data.receivedFrom = clientMatch[1].replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+    if (receiptMatch) {
+      data.receiptNo = stripSpaces(receiptMatch[1]);
+    }
 
-      // Extract Client Name (Regex Logic)
-      const nameRegex = /(?:Mr\.|Md\.|Mrs\.|Mst\.|M\/S|Prop\.|A\/c)\s+([^,\n;]+)/i;
-      const nameMatch = clientMatch[1].match(nameRegex);
-      if (nameMatch && nameMatch[1]) {
-        data.clientName = nameMatch[1].trim();
+    // 3. Class of Insurance — text between label and "Date"
+    data.classOfInsurance = extract(
+      /Class of Insurance\s*:\s*([^\n\r]+?)(?=\s+Date|Date\s*:|$)/i,
+    );
+
+    // 4. Date — extract and strip spaces, original format
+    const dateMatch = cleanText.match(/Date\s*:\s*([\d\s-]+)/i);
+    if (dateMatch) {
+      data.date = stripSpaces(dateMatch[1]);
+    }
+
+    // 5. Cheque Date = same as date (business rule: both dates always same)
+    data.chequeDate = data.date;
+
+    // 6. Received From — multi-line capture between keyword and "The sum of"
+    const receivedMatch = text.match(
+      /Received with thanks from\s+([\s\S]+?)(?=\s*The sum of)/i,
+    );
+    if (receivedMatch) {
+      data.receivedFrom = receivedMatch[1]
+        .replace(/\n/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      // 7. Client Name — extract from A/C. or A/C.M/S. pattern
+      const acMatch = data.receivedFrom.match(
+        /A\/C\.(?:M\/S\.)?\s*([^,.\n]+)/i,
+      );
+      if (acMatch && acMatch[1]) {
+        data.clientName = acMatch[1].trim();
       } else {
-        // Fallback: First few words of receivedFrom
-        data.clientName = data.receivedFrom.split(/[,;]/)[0].substring(0, 50).trim();
+        // Fallback: use prefix-based extraction
+        const nameRegex = /(?:Mr\.|Md\.|Mrs\.|Mst\.|M\/S|Prop\.)\s+([^,\n;]+)/i;
+        const nameMatch = data.receivedFrom.match(nameRegex);
+        if (nameMatch && nameMatch[1]) {
+          data.clientName = nameMatch[1].trim();
+        } else {
+          data.clientName = data.receivedFrom
+            .split(/[,;]/)[0]
+            .substring(0, 50)
+            .trim();
+        }
       }
     }
 
-    // 4. Sum of (Text in parentheses)
-    const sumMatch = cleanText.match(/The sum of.*?\(([^)]+)\)/i);
-    if (sumMatch) {
-      let sumText = sumMatch[1].trim();
-      if (!sumText.toLowerCase().includes("taka")) sumText += " taka";
-      const amountMatch = cleanText.match(/The sum of.*?Tk\.\s*([\d,]+\.\d{2})/i);
-      if (amountMatch) {
-        data.sumOf = `${amountMatch[1]} (${sumText})`;
-      } else {
-        data.sumOf = sumText;
-      }
+    // 8. Mode of Payment — payment method + optional number, stop at "Dated"
+    const modeMatch = text.match(/Mode of Payment\s+(.+?)\s+Dated\b/i);
+    if (modeMatch) {
+      data.modeOfPayment = modeMatch[1].trim();
+    } else {
+      // Fallback: capture until end of line
+      const modeFallback = text.match(/Mode of Payment\s+(.+?)$/im);
+      if (modeFallback) data.modeOfPayment = modeFallback[1].trim();
     }
 
-    // 5. Mode of Payment
-    data.modeOfPayment = extract(/Mode of Payment\s+(.+?)(?=\s+Dated|\s+Drawn on|$)/i);
-
-    // 6. Drawn on
+    // 9. Drawn on
     data.drawnOn = extract(/Drawn on\s+(.+?)(?=\s+Issued against|$)/i);
 
-    // 7. Issued Against
-    data.issuedAgainst = extract(/Issued against\s+([A-Z0-9\/-]+)/i);
+    // 10. Issued Against — match until end of line, strip spaces
+    const issuedMatch = text.match(/Issued against\s+(.+?)$/im);
+    if (issuedMatch) {
+      data.issuedAgainst = stripSpaces(issuedMatch[1]);
+    }
 
-    // 8. Financials
-    data.premium = extract(/Premium\s+BDT\s+([\d,]+\.\d{2})/i).replace(/,/g, "");
+    // 11. Financial Fields — amounts with commas and decimals
+    data.premium = extract(/Premium\s+BDT\s+([\d,]+\.\d{2})/i).replace(
+      /,/g,
+      "",
+    );
     data.vat = extract(/VAT\s+BDT\s+([\d,]+\.\d{2})/i).replace(/,/g, "");
     data.total = extract(/Total\s+BDT\s+([\d,]+\.\d{2})/i).replace(/,/g, "");
 
-    // Stamp (Optional)
     const stampMatch = cleanText.match(/Stamp\s+BDT\s+([\d,]+\.\d{2})/i);
-    if (stampMatch) data.stamp = stampMatch[1].replace(/,/g, "");
+    if (stampMatch) {
+      data.stamp = stampMatch[1].replace(/,/g, "");
+    }
 
+    // 12. sumOf — will be calculated in post-processing (PdfUpload)
+    // For now, extract raw if available
+    const sumMatch = text.match(/The sum of\s+([\s\S]+?)(?=\n|$)/i);
+    if (sumMatch) {
+      data.sumOf = sumMatch[1].trim();
+    }
   } catch (error) {
     console.error("Regex Parsing Error:", error);
   }

@@ -92,8 +92,20 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
     }
   }, [premium, vat, stamp, setValue]);
 
-  const handleAutoFill = (extractedData, status) => {
-    setVerificationStatus(status || {});
+  const handleAutoFill = (extractedData, verification) => {
+    // Transform new format { fieldScores: { id: { score, status } } }
+    // to flat format { id: 'verified'|'mismatch' } expected by FormInput
+    const flatStatus = {};
+    if (verification?.fieldScores) {
+      Object.entries(verification.fieldScores).forEach(([key, val]) => {
+        flatStatus[key] =
+          val.status === "verified" || val.status === "partial"
+            ? "verified"
+            : "mismatch";
+      });
+    }
+    setVerificationStatus(flatStatus);
+
     Object.keys(extractedData).forEach((key) => {
       if (extractedData[key] !== null && extractedData[key] !== undefined) {
         setValue(key, String(extractedData[key]));
