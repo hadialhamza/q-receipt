@@ -166,22 +166,22 @@ export default function ReceiptTemplate({ data, code }) {
               <span>The sum of</span>
             </div>
             <div className="basis-[84.5%] border-b border-[#333]">
-              <span>Tk. </span> {data.sumOf || ""}
+              {data.sumOf || ""}
             </div>
           </div>
 
           {/* Mode of Payment + Dated */}
           <div className="flex items-end mb-1.75 pr-1">
-            <div className="basis-[24%]">
+            <div className="basis-[17%]">
               <span>Mode of Payment</span>
             </div>
-            <div className="basis-[33.8%] border-b border-[#333]">
+            <div className="basis-[63.8%] border-b border-[#333]">
               {data.modeOfPayment || ""}
             </div>
-            <div className="basis-[17%] text-right pr-[10.5px]">
+            <div className="basis-[8%] text-right pr-[10.5px]">
               <span>Dated</span>
             </div>
-            <div className="basis-[25.2%] border-b border-[#333]">
+            <div className="basis-[10.2%] border-b border-[#333]">
               {data.chequeDate || ""}
             </div>
           </div>

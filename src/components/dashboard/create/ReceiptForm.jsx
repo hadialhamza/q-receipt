@@ -93,8 +93,6 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
   }, [premium, vat, stamp, setValue]);
 
   const handleAutoFill = (extractedData, verification) => {
-    // Transform new format { fieldScores: { id: { score, status } } }
-    // to flat format { id: 'verified'|'mismatch' } expected by FormInput
     const flatStatus = {};
     if (verification?.fieldScores) {
       Object.entries(verification.fieldScores).forEach(([key, val]) => {
