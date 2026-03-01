@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { createReceipt } from "@/app/actions/receipts/create-receipt";
 import { updateReceipt } from "@/app/actions/receipts/update-receipt";
 import { PdfUpload } from "./PdfUpload";
+import { buildSumOf } from "@/lib/number-to-words";
 import SavingLoader from "@/app/(dashboard)/create/savingLoader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,11 +78,22 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
 
   const { handleSubmit, setValue } = methods;
 
-  const [premium, vat, stamp] = useWatch({
+  const [premium, vat, stamp, date, total] = useWatch({
     control: methods.control,
-    name: ["premium", "vat", "stamp"],
+    name: ["premium", "vat", "stamp", "date", "total"],
   });
 
+  // Auto-calc: VAT = premium × 15%
+  useEffect(() => {
+    if (premium) {
+      const premiumNum = parseFloat(String(premium).replace(/,/g, "")) || 0;
+      if (premiumNum > 0) {
+        setValue("vat", Math.round(premiumNum * 0.15).toFixed(2));
+      }
+    }
+  }, [premium, setValue]);
+
+  // Auto-calc: total = premium + vat + stamp
   useEffect(() => {
     if (premium && vat) {
       const premiumNum = parseFloat(String(premium).replace(/,/g, "")) || 0;
@@ -91,6 +103,23 @@ export default function ReceiptForm({ initialData = null, receiptId = null }) {
       setValue("total", totalNum.toFixed(2));
     }
   }, [premium, vat, stamp, setValue]);
+
+  // Auto-calc: sumOf from total
+  useEffect(() => {
+    if (total) {
+      const totalNum = parseFloat(String(total).replace(/,/g, "")) || 0;
+      if (totalNum > 0) {
+        setValue("sumOf", buildSumOf(totalNum));
+      }
+    }
+  }, [total, setValue]);
+
+  // Auto-sync: chequeDate = date
+  useEffect(() => {
+    if (date) {
+      setValue("chequeDate", date);
+    }
+  }, [date, setValue]);
 
   const handleAutoFill = (extractedData, verification) => {
     const flatStatus = {};

@@ -39,6 +39,7 @@ export default function PaymentSection({ verificationStatus }) {
           icon={Calendar}
           iconClassName="text-orange-500"
           placeholder="dd-mm-yyyy"
+          readOnly
           verificationStatus={verificationStatus}
         />
       </div>

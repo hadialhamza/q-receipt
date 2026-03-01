@@ -21,7 +21,8 @@ export default function ClientSection({ verificationStatus }) {
         icon={Banknote}
         iconClassName="text-green-600"
         rows={2}
-        placeholder="e.g. 1,02,695.00 (One Lakh...)"
+        placeholder="Auto-generated from total"
+        // readOnly
         verificationStatus={verificationStatus}
       />
     </>
