@@ -6,7 +6,6 @@ async function getPdfJs() {
 }
 export async function extractTextFromPdf(file) {
   try {
-    // 1. Load PDF
     const pdfjsLib = await getPdfJs();
     const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument(arrayBuffer);
@@ -14,55 +13,70 @@ export async function extractTextFromPdf(file) {
     const page = await pdf.getPage(1);
     const textContent = await page.getTextContent();
 
-    // 2. Extract Text & Coordinates
-    // Using Coordinates because PDF text items are not guaranteed to be in reading order
+    // Extract text items with coordinates and width
     let items = textContent.items.map((item) => ({
       text: item.str,
-      x: item.transform[4], // X-axis
-      y: item.transform[5], // Y-axis
+      x: item.transform[4],
+      y: item.transform[5],
+      width: item.width || 0,
       height: item.height || 10,
     }));
 
-    // Filter empty text
     items = items.filter((item) => item.text.trim().length > 0);
 
-    // 3. Sorting (Crucial Step)
-    // Sort by Y-axis (Top to Bottom), then X-axis (Left to Right)
+    // Sort: Top-to-Bottom (Y descending), then Left-to-Right (X ascending)
     items.sort((a, b) => {
-      // Y-axis: In PDF, Y normally starts from bottom. b.y - a.y sorts Top-to-Bottom
       const yDiff = b.y - a.y;
-      if (Math.abs(yDiff) < 1) {
-        // If Y difference is negligible, consider same line
-        return a.x - b.x; // Sort Left to Right
-      }
+      if (Math.abs(yDiff) < 1) return a.x - b.x;
       return yDiff;
     });
 
-    // 4. Line Reconstruction
-    const lines = [];
-    let currentLineY = -1;
-    let currentLineText = [];
+    // Line reconstruction with Smart Character Proximity Detection
+    const LINE_TOLERANCE = 6; // Max Y diff for same line
+    const CHAR_PROXIMITY = 2; // Max gap (px) to join without space
 
-    // Tolerance: Max Y difference to be considered the same line.
-    const tolerance = 6;
+    const lineGroups = [];
+    let currentGroup = [];
+    let currentLineY = -1;
 
     items.forEach((item) => {
-      // If first item or within vertical tolerance
-      if (currentLineY === -1 || Math.abs(item.y - currentLineY) < tolerance) {
-        currentLineText.push(item.text);
+      if (
+        currentLineY === -1 ||
+        Math.abs(item.y - currentLineY) < LINE_TOLERANCE
+      ) {
+        currentGroup.push(item);
         if (currentLineY === -1) currentLineY = item.y;
       } else {
-        // New line detected
-        lines.push(currentLineText.join(" ")); // Save previous line
-        currentLineText = [item.text]; // Start new line
-        currentLineY = item.y; // Update Y
+        if (currentGroup.length > 0) lineGroups.push(currentGroup);
+        currentGroup = [item];
+        currentLineY = item.y;
       }
     });
+    if (currentGroup.length > 0) lineGroups.push(currentGroup);
 
-    // Push the last line
-    if (currentLineText.length > 0) lines.push(currentLineText.join(" "));
+    // Build lines using proximity-based joining
+    const lines = lineGroups.map((group) => {
+      // Sort group items by X position (left to right)
+      group.sort((a, b) => a.x - b.x);
 
-    // 5. Final Output
+      let lineText = group[0].text;
+      for (let i = 1; i < group.length; i++) {
+        const prev = group[i - 1];
+        const curr = group[i];
+        // Calculate actual pixel gap between end of prev item and start of current
+        const gap = curr.x - (prev.x + prev.width);
+
+        if (gap < CHAR_PROXIMITY) {
+          // Close proximity: join directly (fragmented characters)
+          lineText += curr.text;
+        } else {
+          // Normal gap: add space
+          lineText += " " + curr.text;
+        }
+      }
+      return lineText;
+    });
+
     return lines.join("\n");
   } catch (error) {
     console.error("PDF Text Error:", error);

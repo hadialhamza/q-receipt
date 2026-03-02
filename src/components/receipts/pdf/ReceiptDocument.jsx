@@ -330,7 +330,7 @@ export const ReceiptDocument = ({ data, qrCodeDataUrl, shortCode }) => {
         <View style={styles.lineRow}>
           <Text style={styles.lineLabelNormal}>The sum of</Text>
           <View style={styles.underline}>
-            <Text>Tk. {data.sumOf || ""}</Text>
+            <Text>{data.sumOf || ""}</Text>
           </View>
         </View>
 

@@ -30,12 +30,13 @@ export default function FinancialSection({ verificationStatus }) {
         />
         <FormInput
           id="vat"
-          label="VAT"
+          label="VAT (15%)"
           icon={Hash}
           iconClassName="text-rose-500"
           type="number"
           step="0.01"
           placeholder="0.00"
+          readOnly
           verificationStatus={verificationStatus}
         />
         <FormInput
@@ -45,7 +46,7 @@ export default function FinancialSection({ verificationStatus }) {
           iconClassName="text-blue-600"
           type="number"
           step="0.01"
-          readOnly
+          // readOnly
           verificationStatus={verificationStatus}
         />
       </div>
