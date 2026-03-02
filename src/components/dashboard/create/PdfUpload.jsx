@@ -1,25 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import {
-  FileUp,
-  Loader2,
-  FileText,
-  X,
-  Eye,
-  ZoomIn,
-  ZoomOut,
-  Search,
-} from "lucide-react";
-import Image from "next/image";
+import { FileUp, Loader2, FileText, X, Mouse, Command } from "lucide-react";
 import { toast } from "sonner";
-import { extractTextFromPdf, renderPdfToImage } from "@/lib/pdf-extractor";
+import { extractTextFromPdf } from "@/lib/pdf-extractor";
 import { parseReceiptData } from "@/lib/parse-receipt";
 import { parseReceiptWithAI } from "@/app/actions/ai/groq-parser";
 import { verifyExtraction, validateExtraction } from "@/lib/verification";
 import { buildSumOf } from "@/lib/number-to-words";
 import { Button } from "@/components/ui/button";
-import { GlassMagnifier } from "@/components/ui/GlassMagnifier";
 import { Card } from "@/components/ui/card";
 import ScanningLoader from "@/app/(dashboard)/create/scanningLoader";
 
@@ -74,12 +63,7 @@ function postProcess(data) {
 
 export function PdfUpload({ onDataExtracted }) {
   const [loading, setLoading] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
-  const [zoomLevel, setZoomLevel] = useState(2.5);
-  const [isZoomEnabled, setIsZoomEnabled] = useState(true);
-
-  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.5, 5));
-  const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.5, 1.5));
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -96,15 +80,12 @@ export function PdfUpload({ onDataExtracted }) {
     try {
       toast.info("Processing Receipt...");
 
-      // 1. Extract Raw PDF Text + Image Preview
-      const [text, imageUrl] = await Promise.all([
-        extractTextFromPdf(file),
-        renderPdfToImage(file),
-      ]);
+      // Set PDF URL for native browser preview
+      const objectUrl = URL.createObjectURL(file);
+      setPdfUrl(objectUrl);
 
-      if (imageUrl) {
-        setPreviewImage(imageUrl);
-      }
+      // Extract Raw PDF Text ONLY
+      const text = await extractTextFromPdf(file);
 
       // 2. Run Regex and AI in Parallel
       const [regexResult, aiResult] = await Promise.allSettled([
@@ -164,8 +145,7 @@ export function PdfUpload({ onDataExtracted }) {
   };
 
   const clearFile = () => {
-    setPreviewImage(null);
-    onDataExtracted({}, {});
+    setPdfUrl(null);
   };
 
   return (
@@ -173,11 +153,11 @@ export function PdfUpload({ onDataExtracted }) {
       {loading && <ScanningLoader />}
       <Card
         className={`border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden sticky top-24 transition-all duration-300 ${
-          previewImage ? "p-0" : "p-6"
+          pdfUrl ? "p-0" : "p-6"
         }`}
       >
-        {/* --- STATE 1: PREVIEW MODE (With Glass Magnifier) --- */}
-        {previewImage ? (
+        {/* --- STATE 1: PREVIEW MODE (Native PDF Viewer) --- */}
+        {pdfUrl ? (
           <div className="flex flex-col h-[85vh]">
             {/* Header */}
             <div className="p-4 border-b bg-background/95 backdrop-blur-sm flex items-center justify-between z-10 sticky top-0">
@@ -189,97 +169,47 @@ export function PdfUpload({ onDataExtracted }) {
                   <h4 className="text-sm font-bold leading-none">
                     Receipt Preview
                   </h4>
-                  <p className="text-[10px] text-muted-foreground font-medium mt-0.5 uppercase tracking-wide">
-                    Extracted Data Sources
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide border-r border-slate-200 dark:border-slate-800 pr-2">
+                      Select text to copy
+                    </p>
+                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 shadow-sm">
+                      <Command size={12} className="stroke-[2.5px]" />
+                      <span className="text-xs font-bold tracking-tight">
+                        CTRL
+                      </span>
+                      <span className="text-xs font-medium opacity-70">+</span>
+                      <Mouse size={12} />
+                      <span className="text-xs font-bold tracking-tight">
+                        SCROLL
+                      </span>
+                      <span className="text-xs font-medium tracking-wide ml-0.5 opacity-80">
+                        TO ZOOM
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <div className="flex items-center gap-1">
-                  {/* Zoom Controls */}
-                  <div className="flex items-center gap-1 mr-2 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                    <Button
-                      variant={isZoomEnabled ? "default" : "ghost"}
-                      size="icon"
-                      onClick={() => setIsZoomEnabled(!isZoomEnabled)}
-                      className={`h-6 w-6 rounded-md transition-all ${
-                        isZoomEnabled
-                          ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-                          : "text-muted-foreground hover:text-primary hover:bg-slate-200 dark:hover:bg-slate-700"
-                      }`}
-                      title={
-                        isZoomEnabled ? "Disable Magnifier" : "Enable Magnifier"
-                      }
-                    >
-                      <Search size={12} />
-                    </Button>
-
-                    {isZoomEnabled && (
-                      <>
-                        <div className="w-px h-3 bg-slate-300 dark:bg-slate-700 mx-0.5" />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={handleZoomOut}
-                          disabled={zoomLevel <= 1.5}
-                          className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md disabled:opacity-30"
-                        >
-                          <ZoomOut size={12} />
-                        </Button>
-                        <span className="text-[10px] font-mono font-bold w-8 text-center text-slate-600 dark:text-slate-300">
-                          {zoomLevel.toFixed(1)}x
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={handleZoomIn}
-                          disabled={zoomLevel >= 5}
-                          className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md disabled:opacity-30"
-                        >
-                          <ZoomIn size={12} />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={clearFile}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
-                    title="Remove File"
-                  >
-                    <X size={18} />
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={clearFile}
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
+                  title="Remove File"
+                >
+                  <X size={18} />
+                </Button>
               </div>
             </div>
 
-            {/* 🔍 MAGNIFIER AREA */}
-            <div className="flex-1 bg-slate-50/50 dark:bg-slate-900/50 overflow-auto flex items-start justify-center relative group/preview">
-              {/* Dot Pattern Background */}
-              <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#000000_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none" />
-
-              <div
-                className={`shadow-2xl shadow-slate-200/50 dark:shadow-black/50 w-full max-w-full ring-1 ring-slate-200 dark:ring-slate-800 bg-white overflow-hidden ${!isZoomEnabled && "p-4 flex items-center justify-center"}`}
-              >
-                {isZoomEnabled ? (
-                  <GlassMagnifier
-                    imageSrc={previewImage}
-                    magnifierSize={200}
-                    zoomLevel={zoomLevel}
-                  />
-                ) : (
-                  <Image
-                    src={previewImage}
-                    alt="Receipt Preview"
-                    width={0}
-                    height={0}
-                    sizes="100vw"
-                    className="w-full h-auto object-contain max-h-full"
-                    unoptimized
-                  />
-                )}
-              </div>
+            {/* 🔍 PDF VIEWER AREA */}
+            <div className="flex-1 bg-slate-50/50 dark:bg-slate-900/50 overflow-hidden relative">
+              <iframe
+                src={`${pdfUrl}#toolbar=0&navpanes=0`}
+                className="w-full h-full border-none"
+                title="PDF Preview"
+              />
             </div>
 
             {/* Footer Actions */}
